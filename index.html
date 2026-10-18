@@ -70,7 +70,12 @@
       <button id="test">Probar alerta</button>
       <span class="conn" id="conn">Desconectado</span>
     </div>
+    <div class="row" style="margin-top:12px">
+      <input id="ip" placeholder="IP de la placa (ej. 192.168.1.50)" style="font:inherit;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);flex:1;min-width:200px">
+      <button class="primary" id="wifi">Conectar por WiFi</button>
+    </div>
     <p class="hint" id="support"></p>
+    <p class="hint" id="wifihint">WiFi: la placa debe ser un ESP con el firmware <code>sumidero_wifi/sumidero_wifi.ino</code>. Si abres esta página desde GitHub (https), Chrome bloquea el acceso a la placa (http): abre mejor <b>http://IP_DE_LA_PLACA</b>, donde la placa sirve esta misma página.</p>
   </div>
 
   <div id="status">
@@ -228,8 +233,61 @@ async function desconectar(interno) {
   if (!interno) log('Placa desconectada');
 }
 
+// ---------- WiFi ----------
+let pollTimer = null, fallos = 0, wifiOk = false;
+const mismaOrigen = location.protocol === 'http:';
+
+function conectarWifi() {
+  const ip = $('ip').value.trim();
+  if (!mismaOrigen && !ip) { log('Escribe la IP de la placa'); return; }
+  if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+  audioCtx = audioCtx || new AudioContext(); audioCtx.resume();
+  try { localStorage.setItem('ip', ip); } catch {}
+  fallos = 0;
+  $('conn').textContent = 'Conectando por WiFi…';
+  $('connect').disabled = $('wifi').disabled = true; $('disconnect').disabled = false;
+  const url = mismaOrigen && !ip ? '/estado' : `http://${ip}/estado`;
+  const sondear = async () => {
+    const ac = new AbortController(), t = setTimeout(() => ac.abort(), 2500);
+    try {
+      const r = await fetch(url, { cache: 'no-store', signal: ac.signal });
+      const d = await r.json();
+      if (!wifiOk) log('Placa conectada por WiFi');
+      wifiOk = true; fallos = 0;
+      $('conn').textContent = 'Conectado (WiFi)'; $('conn').classList.add('on');
+      if (d.distancia > 0) $('dist').textContent = d.distancia.toFixed(1);
+      setEstado(d.estado);
+    } catch {
+      if (++fallos === 3) {
+        wifiOk = false;
+        log('Sin respuesta de la placa por WiFi' + (location.protocol === 'https:' ? ' (¿bloqueo http desde https?)' : ''));
+        $('conn').textContent = 'Sin respuesta'; $('conn').classList.remove('on');
+      }
+    } finally { clearTimeout(t); }
+  };
+  pollTimer = setInterval(sondear, 1000);
+  wifiOk = false;
+  sondear();
+}
+
+function detenerWifi() {
+  clearInterval(pollTimer); pollTimer = null;
+  estado = null; limpiarAlerta();
+  $('status').className = '';
+  $('state').textContent = 'SIN DATOS';
+  $('detail').textContent = 'Conecta la placa para comenzar.';
+  $('led').classList.remove('on');
+  $('conn').textContent = 'Desconectado'; $('conn').classList.remove('on');
+  $('connect').disabled = $('wifi').disabled = false; $('disconnect').disabled = true;
+  if ('serial' in navigator === false) $('connect').disabled = true;
+}
+
+$('wifi').onclick = conectarWifi;
+try { $('ip').value = localStorage.getItem('ip') || ''; } catch {}
+if (mismaOrigen) { $('ip').placeholder = 'Vacío = esta misma placa'; conectarWifi(); }
+
 $('connect').onclick = conectar;
-$('disconnect').onclick = () => desconectar(false);
+$('disconnect').onclick = () => pollTimer ? (detenerWifi(), log('Desconectado')) : desconectar(false);
 $('test').onclick = () => {
   if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
   audioCtx = audioCtx || new AudioContext(); audioCtx.resume();

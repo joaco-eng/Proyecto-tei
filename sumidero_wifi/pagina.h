@@ -1,0 +1,302 @@
+const char PAGINA[] PROGMEM = R"rawliteral(
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monitor de Sumidero</title>
+<style>
+  :root {
+    --bg: #f4f6f8; --card: #fff; --text: #17202a; --muted: #6b7785; --border: #dde3e9;
+    --ok: #1e9e57; --warn: #e0a100; --bad: #d92d20; --accent: #1769d1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0f1419; --card: #182028; --text: #e6ebf0; --muted: #8b98a5; --border: #2a3541; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 20px; font-size: .9rem; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  button { font: inherit; padding: 9px 16px; border-radius: 8px; border: 1px solid var(--border);
+           background: var(--card); color: var(--text); cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .conn { margin-left: auto; font-size: .85rem; color: var(--muted); }
+  .conn::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%;
+                  background: var(--muted); margin-right: 6px; }
+  .conn.on::before { background: var(--ok); }
+
+  #status { text-align: center; padding: 32px 16px; border-radius: 12px; border: 2px solid var(--ok);
+            background: color-mix(in srgb, var(--ok) 10%, var(--card)); transition: .2s; }
+  #status.verificando { border-color: var(--warn); background: color-mix(in srgb, var(--warn) 12%, var(--card)); }
+  #status.alerta { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 14%, var(--card));
+                   animation: pulse 1s infinite; }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--bad) 25%, transparent); } }
+  #state { font-size: 2rem; font-weight: 700; letter-spacing: .04em; }
+  #detail { color: var(--muted); margin-top: 6px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+  .stat { text-align: center; }
+  .stat b { display: block; font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+  .stat span { color: var(--muted); font-size: .8rem; }
+  .led { display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: var(--muted); vertical-align: middle; }
+  .led.on { background: var(--bad); box-shadow: 0 0 10px var(--bad); }
+  h2 { font-size: 1rem; margin: 0 0 12px; }
+  ul#log { list-style: none; margin: 0; padding: 0; max-height: 240px; overflow: auto; font-size: .9rem; }
+  #log li { padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; gap: 10px; }
+  #log time { color: var(--muted); font-variant-numeric: tabular-nums; }
+  #log li.alerta { color: var(--bad); font-weight: 600; }
+  #log li.ok { color: var(--ok); }
+  #banner { display: none; position: fixed; inset: 0 0 auto 0; background: var(--bad); color: #fff;
+            padding: 16px; text-align: center; font-weight: 700; z-index: 10; }
+  #banner button { margin-left: 12px; }
+  body.alerta #banner { display: block; }
+  label { font-size: .9rem; color: var(--muted); }
+  .hint { font-size: .8rem; color: var(--muted); margin: 10px 0 0; }
+</style>
+</head>
+<body>
+<div id="banner">⚠ ALERTA: POSIBLE OBSTRUCCIÓN EN EL SUMIDERO <button id="silence">Silenciar</button></div>
+
+<main>
+  <h1>Monitor de nivel del sumidero</h1>
+  <p class="sub">Alerta cuando el LED (pin 6) se enciende: nivel ≤ 8 cm durante 5 s.</p>
+
+  <div class="card">
+    <div class="row">
+      <button class="primary" id="connect">Conectar placa</button>
+      <button id="disconnect" disabled>Desconectar</button>
+      <button id="test">Probar alerta</button>
+      <span class="conn" id="conn">Desconectado</span>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <input id="ip" placeholder="IP de la placa (ej. 192.168.1.50)" style="font:inherit;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);flex:1;min-width:200px">
+      <button class="primary" id="wifi">Conectar por WiFi</button>
+    </div>
+    <p class="hint" id="support"></p>
+    <p class="hint" id="wifihint">WiFi: la placa debe ser un ESP con el firmware <code>sumidero_wifi/sumidero_wifi.ino</code>. Si abres esta página desde GitHub (https), Chrome bloquea el acceso a la placa (http): abre mejor <b>http://IP_DE_LA_PLACA</b>, donde la placa sirve esta misma página.</p>
+  </div>
+
+  <div id="status">
+    <div id="state">SIN DATOS</div>
+    <div id="detail">Conecta la placa para comenzar.</div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="grid">
+      <div class="stat"><b id="dist">—</b><span>Distancia al agua (cm)</span></div>
+      <div class="stat"><b>≤ 8.0</b><span>Umbral de alerta (cm)</span></div>
+      <div class="stat"><b><i class="led" id="led"></i></b><span>LED</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Historial</h2>
+    <ul id="log"></ul>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+let port, reader, closing = false, estado = null, alarmTimer = null, audioCtx = null;
+
+if (!('serial' in navigator)) {
+  $('support').textContent = 'Este navegador no soporta Web Serial. Usa Chrome o Edge de escritorio.';
+  $('connect').disabled = true;
+}
+
+function log(msg, cls = '') {
+  const li = document.createElement('li');
+  li.className = cls;
+  li.innerHTML = `<time>${new Date().toLocaleTimeString()}</time><span></span>`;
+  li.lastChild.textContent = msg;
+  $('log').prepend(li);
+}
+
+// ---------- Alerta ----------
+function beep() {
+  try {
+    audioCtx = audioCtx || new AudioContext();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = 'square'; o.frequency.value = 880;
+    g.gain.value = 0.15;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime + 0.25);
+  } catch {}
+}
+
+function dispararAlerta() {
+  document.body.classList.add('alerta');
+  document.title = '🚨 ALERTA - Sumidero';
+  log('ALERTA: LED encendido, posible obstrucción', 'alerta');
+  beep();
+  clearInterval(alarmTimer);
+  alarmTimer = setInterval(beep, 1000);
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification('🚨 Alerta en el sumidero', { body: 'Posible obstrucción: nivel de agua elevado.', requireInteraction: true });
+  }
+}
+
+function detenerAlarma() {
+  clearInterval(alarmTimer);
+  alarmTimer = null;
+}
+
+function limpiarAlerta() {
+  detenerAlarma();
+  document.body.classList.remove('alerta');
+  document.title = 'Monitor de Sumidero';
+}
+
+$('silence').onclick = detenerAlarma;
+
+// ---------- Estado ----------
+function setEstado(nuevo) {
+  if (nuevo === estado) return;
+  const previo = estado;
+  estado = nuevo;
+  const el = $('status');
+  el.className = nuevo.toLowerCase();
+  $('led').classList.toggle('on', nuevo === 'ALERTA');
+  if (nuevo === 'ALERTA') {
+    $('state').textContent = 'ALERTA';
+    $('detail').textContent = 'Posible obstrucción: LED encendido.';
+    dispararAlerta();
+  } else if (nuevo === 'VERIFICANDO') {
+    $('state').textContent = 'VERIFICANDO';
+    $('detail').textContent = 'Nivel elevado, confirmando durante 5 s…';
+    limpiarAlerta();
+    log('Nivel elevado, verificando…');
+  } else {
+    $('state').textContent = 'NORMAL';
+    $('detail').textContent = 'Nivel de agua dentro del rango.';
+    limpiarAlerta();
+    if (previo) log('Nivel volvió a la normalidad', 'ok');
+  }
+}
+
+function procesarLinea(linea) {
+  linea = linea.trim();
+  let m = linea.match(/Distancia al agua:\s*([\d.]+)/);
+  if (m) $('dist').textContent = m[1];
+  m = linea.match(/^ESTADO:\s*(ALERTA|VERIFICANDO|NORMAL)/);
+  if (m) setEstado(m[1]);
+  if (linea.startsWith('Error: Sin respuesta')) log('Sensor sin respuesta (revisa TRIG/ECHO)');
+}
+
+// ---------- Serial ----------
+async function conectar() {
+  if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+  try {
+    audioCtx = audioCtx || new AudioContext(); audioCtx.resume();
+    port = await navigator.serial.requestPort();
+    await port.open({ baudRate: 9600 });
+  } catch (e) { if (e.name !== 'NotFoundError') log('No se pudo conectar: ' + e.message); return; }
+
+  closing = false;
+  $('conn').textContent = 'Conectado'; $('conn').classList.add('on');
+  $('connect').disabled = true; $('disconnect').disabled = false;
+  $('detail').textContent = 'Esperando mediciones…';
+  log('Placa conectada');
+
+  const decoder = new TextDecoderStream();
+  const done = port.readable.pipeTo(decoder.writable).catch(() => {});
+  reader = decoder.readable.getReader();
+  let buf = '';
+  try {
+    while (true) {
+      const { value, done: fin } = await reader.read();
+      if (fin) break;
+      buf += value;
+      const partes = buf.split(/\r?\n/);
+      buf = partes.pop();
+      partes.forEach(procesarLinea);
+    }
+  } catch (e) { if (!closing) log('Conexión perdida: ' + e.message); }
+  await done;
+  await desconectar(true);
+}
+
+async function desconectar(interno) {
+  closing = true;
+  try { await reader?.cancel(); } catch {}
+  try { await port?.close(); } catch {}
+  port = reader = null; estado = null;
+  limpiarAlerta();
+  $('status').className = '';
+  $('state').textContent = 'SIN DATOS';
+  $('detail').textContent = 'Conecta la placa para comenzar.';
+  $('led').classList.remove('on');
+  $('conn').textContent = 'Desconectado'; $('conn').classList.remove('on');
+  $('connect').disabled = false; $('disconnect').disabled = true;
+  if (!interno) log('Placa desconectada');
+}
+
+// ---------- WiFi ----------
+let pollTimer = null, fallos = 0, wifiOk = false;
+const mismaOrigen = location.protocol === 'http:';
+
+function conectarWifi() {
+  const ip = $('ip').value.trim();
+  if (!mismaOrigen && !ip) { log('Escribe la IP de la placa'); return; }
+  if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+  audioCtx = audioCtx || new AudioContext(); audioCtx.resume();
+  try { localStorage.setItem('ip', ip); } catch {}
+  fallos = 0;
+  $('conn').textContent = 'Conectando por WiFi…';
+  $('connect').disabled = $('wifi').disabled = true; $('disconnect').disabled = false;
+  const url = mismaOrigen && !ip ? '/estado' : `http://${ip}/estado`;
+  const sondear = async () => {
+    const ac = new AbortController(), t = setTimeout(() => ac.abort(), 2500);
+    try {
+      const r = await fetch(url, { cache: 'no-store', signal: ac.signal });
+      const d = await r.json();
+      if (!wifiOk) log('Placa conectada por WiFi');
+      wifiOk = true; fallos = 0;
+      $('conn').textContent = 'Conectado (WiFi)'; $('conn').classList.add('on');
+      if (d.distancia > 0) $('dist').textContent = d.distancia.toFixed(1);
+      setEstado(d.estado);
+    } catch {
+      if (++fallos === 3) {
+        wifiOk = false;
+        log('Sin respuesta de la placa por WiFi' + (location.protocol === 'https:' ? ' (¿bloqueo http desde https?)' : ''));
+        $('conn').textContent = 'Sin respuesta'; $('conn').classList.remove('on');
+      }
+    } finally { clearTimeout(t); }
+  };
+  pollTimer = setInterval(sondear, 1000);
+  wifiOk = false;
+  sondear();
+}
+
+function detenerWifi() {
+  clearInterval(pollTimer); pollTimer = null;
+  estado = null; limpiarAlerta();
+  $('status').className = '';
+  $('state').textContent = 'SIN DATOS';
+  $('detail').textContent = 'Conecta la placa para comenzar.';
+  $('led').classList.remove('on');
+  $('conn').textContent = 'Desconectado'; $('conn').classList.remove('on');
+  $('connect').disabled = $('wifi').disabled = false; $('disconnect').disabled = true;
+  if ('serial' in navigator === false) $('connect').disabled = true;
+}
+
+$('wifi').onclick = conectarWifi;
+try { $('ip').value = localStorage.getItem('ip') || ''; } catch {}
+if (mismaOrigen) { $('ip').placeholder = 'Vacío = esta misma placa'; conectarWifi(); }
+
+$('connect').onclick = conectar;
+$('disconnect').onclick = () => pollTimer ? (detenerWifi(), log('Desconectado')) : desconectar(false);
+$('test').onclick = () => {
+  if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+  audioCtx = audioCtx || new AudioContext(); audioCtx.resume();
+  estado = null; $('dist').textContent = '7.5';
+  setEstado('ALERTA');
+  log('(prueba simulada)');
+};
+</script>
+</body>
+</html>
+)rawliteral";
