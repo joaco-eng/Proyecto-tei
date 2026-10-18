@@ -76,7 +76,7 @@ const char PAGINA[] PROGMEM = R"rawliteral(
       <button class="primary" id="wifi">Conectar por WiFi</button>
     </div>
     <p class="hint" id="support"></p>
-    <p class="hint" id="wifihint">WiFi: la placa debe ser un ESP con el firmware <code>sumidero_wifi/sumidero_wifi.ino</code>. Si abres esta página desde GitHub (https), Chrome bloquea el acceso a la placa (http): abre mejor <b>http://IP_DE_LA_PLACA</b>, donde la placa sirve esta misma página.</p>
+    <p class="hint" id="wifihint">WiFi: la placa debe ser un ESP con el firmware <code>sumidero_wifi/sumidero_wifi.ino</code>. Desde GitHub (https) el botón te llevará a <b>http://IP_DE_LA_PLACA</b>, donde la placa sirve esta misma página y se conecta sola.</p>
   </div>
 
   <div id="status">
@@ -244,6 +244,8 @@ function conectarWifi() {
   if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
   audioCtx = audioCtx || new AudioContext(); audioCtx.resume();
   try { localStorage.setItem('ip', ip); } catch {}
+  // Desde https el navegador bloquea pedir datos a http: se abre la pagina servida por la propia placa
+  if (location.protocol === 'https:') { location.href = `http://${ip}/`; return; }
   fallos = 0;
   $('conn').textContent = 'Conectando por WiFi…';
   $('connect').disabled = $('wifi').disabled = true; $('disconnect').disabled = false;
