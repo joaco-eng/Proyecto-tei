@@ -1,3 +1,0 @@
-// Copia este archivo como credenciales.h y pon tu red (2.4 GHz).
-const char* WIFI_SSID = "TU_WIFI";
-const char* WIFI_PASS = "TU_CLAVE";

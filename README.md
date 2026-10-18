@@ -58,11 +58,12 @@ Página para conexión por USB: https://joaco-eng.github.io/Proyecto-tei/
 1. Graba `sumidero_wifi.ino` (o el código original).
 2. Abre la página en Chrome/Edge, pulsa **Conectar placa** y elige el puerto. Cierra antes el Monitor Serial del IDE.
 
-### Por WiFi
-1. Copia `sumidero_wifi/credenciales.h.ejemplo` como `credenciales.h` y pon tu red de 2.4 GHz.
-2. Graba la placa y abre el Monitor Serial a 9600.
-3. Espera `WiFi conectado. Abre http://<IP>`.
-4. Abre esa dirección `http://<IP>` desde un equipo en la misma red. La placa sirve la página y se conecta sola.
+### Por WiFi (sin claves en el código)
+1. Graba `sumidero_wifi.ino`. No hay que editar nada.
+2. Primer uso: la placa crea la red **`Sumidero-Setup`** (sin clave). Conéctate desde el celular o el computador; se abre sola la página de configuración (si no, entra a `http://192.168.4.1`).
+3. Elige tu red de 2.4 GHz, escribe la clave y pulsa **Guardar y conectar**. La red queda guardada en la memoria de la placa.
+4. En el Monitor Serial (9600) aparece `WiFi conectado. Abre http://<IP>`. Abre esa dirección desde un equipo en la misma red; la placa sirve la página y se conecta sola.
+5. Para cambiar de red: entra a `http://<IP>/olvidar`. La placa borra la red guardada y vuelve a abrir `Sumidero-Setup`. También lo hace sola si no logra conectarse a la red guardada.
 
 El monitoreo, el LED y el Monitor Serial funcionan aunque no haya WiFi.
 
