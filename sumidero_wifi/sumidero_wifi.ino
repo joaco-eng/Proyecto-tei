@@ -15,13 +15,13 @@
 
 #include <WiFi.h>
 #include <WebServer.h>
-#include "pagina.h"   // generado desde ../index.html con ../generar_pagina.sh
+#include "pagina.h"          // generado desde ../index.html con ../generar_pagina.sh
+#include "credenciales.h"    // WIFI_SSID y WIFI_PASS
 
 
-// ---------------- WIFI (EDITA ESTO) ----------------
-
-const char* WIFI_SSID = "TU_WIFI";   // Red de 2.4 GHz
-const char* WIFI_PASS = "TU_CLAVE";
+// ---------------- WIFI ----------------
+// WIFI_SSID y WIFI_PASS se definen en credenciales.h
+// (copia credenciales.h.ejemplo como credenciales.h y edítalo).
 
 
 // ---------------- PINES ----------------

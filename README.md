@@ -59,7 +59,7 @@ Página para conexión por USB: https://joaco-eng.github.io/Proyecto-tei/
 2. Abre la página en Chrome/Edge, pulsa **Conectar placa** y elige el puerto. Cierra antes el Monitor Serial del IDE.
 
 ### Por WiFi
-1. En `sumidero_wifi.ino` cambia `WIFI_SSID` y `WIFI_PASS` (red de 2.4 GHz).
+1. Copia `sumidero_wifi/credenciales.h.ejemplo` como `credenciales.h` y pon tu red de 2.4 GHz.
 2. Graba la placa y abre el Monitor Serial a 9600.
 3. Espera `WiFi conectado. Abre http://<IP>`.
 4. Abre esa dirección `http://<IP>` desde un equipo en la misma red. La placa sirve la página y se conecta sola.
