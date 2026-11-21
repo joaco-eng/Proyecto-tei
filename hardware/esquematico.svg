@@ -1,0 +1,84 @@
+<svg viewBox="0 0 820 460" xmlns="http://www.w3.org/2000/svg" font-family="Arial, Helvetica, sans-serif" font-size="13">
+  <rect width="820" height="460" fill="#ffffff"/>
+  <text x="410" y="26" text-anchor="middle" font-size="16" font-weight="bold">Esquemático (borrador) — Detector de nivel en sumidero</text>
+  <text x="410" y="46" text-anchor="middle" fill="#a33" font-size="12">Verificar contra el montaje real: valores de R1 y R2, y origen de los 5 V</text>
+
+  <!-- Powerbank -->
+  <rect x="30" y="125" width="130" height="50" rx="6" fill="#f4f4f4" stroke="#555" stroke-width="2"/>
+  <text x="95" y="147" text-anchor="middle">Powerbank</text>
+  <text x="95" y="164" text-anchor="middle" font-size="11">5 V por USB</text>
+  <line x1="160" y1="150" x2="300" y2="150" stroke="#c0392b" stroke-width="2"/>
+  <text x="230" y="143" text-anchor="middle" font-size="11" fill="#c0392b">cable USB</text>
+
+  <!-- ESP32 -->
+  <rect x="300" y="80" width="200" height="250" rx="8" fill="#eef4ff" stroke="#1769d1" stroke-width="2"/>
+  <text x="400" y="102" text-anchor="middle" font-weight="bold">ESP32-S3 Super Mini</text>
+  <text x="310" y="154">USB-C</text>
+  <text x="310" y="204">5V</text>
+  <text x="310" y="284">GND</text>
+  <text x="490" y="154" text-anchor="end">GPIO 5</text>
+  <text x="490" y="204" text-anchor="end">GPIO 4</text>
+  <text x="490" y="284" text-anchor="end">GPIO 6</text>
+
+  <!-- ESP 5V y GND (etiquetas de red) -->
+  <line x1="300" y1="200" x2="268" y2="200" stroke="#c0392b" stroke-width="2"/>
+  <text x="264" y="204" text-anchor="end" fill="#c0392b" font-weight="bold">+5V</text>
+  <line x1="300" y1="280" x2="268" y2="280" stroke="#222" stroke-width="2"/>
+  <line x1="268" y1="280" x2="268" y2="290" stroke="#222" stroke-width="2"/>
+  <line x1="258" y1="290" x2="278" y2="290" stroke="#222" stroke-width="2"/>
+  <line x1="262" y1="295" x2="274" y2="295" stroke="#222" stroke-width="2"/>
+  <line x1="266" y1="300" x2="270" y2="300" stroke="#222" stroke-width="2"/>
+
+  <!-- Sensor -->
+  <rect x="660" y="90" width="130" height="220" rx="8" fill="#effaf0" stroke="#2a8a3a" stroke-width="2"/>
+  <text x="725" y="112" text-anchor="middle" font-weight="bold">AJ-SR04M</text>
+  <text x="670" y="154">TRIG</text>
+  <text x="670" y="204">ECHO</text>
+  <text x="670" y="254">VCC</text>
+  <text x="670" y="284">GND</text>
+
+  <!-- TRIG -->
+  <line x1="500" y1="150" x2="660" y2="150" stroke="#222" stroke-width="2"/>
+
+  <!-- ECHO con divisor R1 / R2 -->
+  <line x1="660" y1="200" x2="640" y2="200" stroke="#222" stroke-width="2"/>
+  <rect x="590" y="190" width="50" height="20" fill="#fff" stroke="#222" stroke-width="2"/>
+  <text x="615" y="204" text-anchor="middle" font-size="11">R1</text>
+  <text x="615" y="182" text-anchor="middle" font-size="10" fill="#a33">COMPLETAR</text>
+  <line x1="590" y1="200" x2="500" y2="200" stroke="#222" stroke-width="2"/>
+  <circle cx="560" cy="200" r="3.5" fill="#222"/>
+  <line x1="560" y1="200" x2="560" y2="222" stroke="#222" stroke-width="2"/>
+  <rect x="550" y="222" width="20" height="40" fill="#fff" stroke="#222" stroke-width="2"/>
+  <text x="578" y="238" font-size="11">R2 <tspan font-size="10" fill="#a33">(COMPLETAR)</tspan></text>
+  <line x1="560" y1="262" x2="560" y2="276" stroke="#222" stroke-width="2"/>
+  <line x1="550" y1="276" x2="570" y2="276" stroke="#222" stroke-width="2"/>
+  <line x1="554" y1="281" x2="566" y2="281" stroke="#222" stroke-width="2"/>
+  <line x1="558" y1="286" x2="562" y2="286" stroke="#222" stroke-width="2"/>
+  <text x="506" y="178" font-size="10" fill="#444">5 V → 3.3 V</text>
+
+  <!-- Sensor VCC y GND -->
+  <line x1="660" y1="250" x2="630" y2="250" stroke="#c0392b" stroke-width="2"/>
+  <text x="626" y="254" text-anchor="end" fill="#c0392b" font-weight="bold">+5V</text>
+  <line x1="660" y1="280" x2="640" y2="280" stroke="#222" stroke-width="2"/>
+  <line x1="640" y1="280" x2="640" y2="296" stroke="#222" stroke-width="2"/>
+  <line x1="630" y1="296" x2="650" y2="296" stroke="#222" stroke-width="2"/>
+  <line x1="634" y1="301" x2="646" y2="301" stroke="#222" stroke-width="2"/>
+  <line x1="638" y1="306" x2="642" y2="306" stroke="#222" stroke-width="2"/>
+
+  <!-- LED en GPIO 6 -->
+  <line x1="500" y1="280" x2="400" y2="280" stroke="#222" stroke-width="0"/>
+  <path d="M 500 280 L 520 280 L 520 340" fill="none" stroke="#222" stroke-width="2"/>
+  <rect x="510" y="340" width="20" height="36" fill="#fff" stroke="#222" stroke-width="2"/>
+  <text x="538" y="362" font-size="11">220 Ω</text>
+  <line x1="520" y1="376" x2="520" y2="392" stroke="#222" stroke-width="2"/>
+  <polygon points="510,392 530,392 520,412" fill="#fff" stroke="#222" stroke-width="2"/>
+  <line x1="510" y1="412" x2="530" y2="412" stroke="#222" stroke-width="2"/>
+  <text x="538" y="408" font-size="11">LED</text>
+  <line x1="520" y1="412" x2="520" y2="424" stroke="#222" stroke-width="2"/>
+  <line x1="510" y1="424" x2="530" y2="424" stroke="#222" stroke-width="2"/>
+  <line x1="514" y1="429" x2="526" y2="429" stroke="#222" stroke-width="2"/>
+  <line x1="518" y1="434" x2="522" y2="434" stroke="#222" stroke-width="2"/>
+
+  <text x="60" y="400" font-size="11" fill="#444">Símbolo de tierra = GND común de todos los componentes.</text>
+  <text x="60" y="416" font-size="11" fill="#444">+5V = alimentación de 5 V (COMPLETAR: pin 5V de la placa o directo de la powerbank).</text>
+</svg>
