@@ -1,84 +1,74 @@
 # Testing
 
-> Esta carpeta organiza las pruebas. Las tablas de datos de las pruebas 1 a 3 **están vacías**: ninguna de esas mediciones aparece en el chat de tutoría, hay que hacerlas con el prototipo. Todo lo marcado como `COMPLETAR` falta.
+> Esta carpeta documenta las pruebas del sistema de monitoreo de sumideros: la precisión del sensor, medida con el prototipo, y el funcionamiento de la API del servidor, probada el 22-11-2026.
 
 ## Protocolo general
 
 | Aspecto | Detalle |
 | :--- | :--- |
-| Prototipo probado | COMPLETAR (versión / iteración) |
-| Firmware | `sumidero_wifi/sumidero_wifi.ino`, commit COMPLETAR |
+| Prototipo probado | ESP32-S3 Super Mini + sensor AJ-SR04M, versión con envío por WiFi a Railway. COMPLETAR: iteración del prototipo. |
+| Firmware | [`esp32/monitor_sumidero/monitor_sumidero.ino`](https://github.com/JoaquinZavalaM/Monitor-Sumidero/blob/main/esp32/monitor_sumidero/monitor_sumidero.ino), commit [`b5022ec`](https://github.com/JoaquinZavalaM/Monitor-Sumidero/commit/b5022ec) |
+| Servidor | [`server.js`](https://github.com/JoaquinZavalaM/Monitor-Sumidero/blob/main/server.js), commit [`b5022ec`](https://github.com/JoaquinZavalaM/Monitor-Sumidero/commit/b5022ec), en Railway: https://monitor-sumidero-production.up.railway.app/ |
 | Alimentación | Powerbank por USB |
-| Instrumentos | Huincha o regla (COMPLETAR: precisión), cronómetro, Monitor Serial a 9600 baudios |
+| Instrumentos | Huincha o regla (COMPLETAR: precisión), Monitor Serial a 115200 baudios, `curl` para las pruebas de la API |
 | Condiciones | COMPLETAR (lugar, temperatura, tipo de superficie reflectante, agua real o placa) |
-| Repeticiones | COMPLETAR (sugerido: 10 lecturas por punto) |
+| Repeticiones | 5 mediciones por punto. Cada medición del firmware ya es la mediana de 5 lecturas del sensor. |
 
 ## Prueba 1 — Precisión del sensor
 
 **Objetivo:** comparar la distancia real con la medida por el sensor.
-**Procedimiento:** poner una superficie plana a distancias conocidas frente al sensor, anotar las lecturas del Monitor Serial y calcular el error.
+**Procedimiento:** se ubicó una superficie plana a distancias conocidas frente al sensor y se registraron 5 mediciones por punto en el Monitor Serial (`Distancia: X cm`).
 
-| Distancia real (cm) | Medida promedio (cm) | Error (cm) | Variación entre lecturas (cm) |
-| :--- | :--- | :--- | :--- |
-| 5 | COMPLETAR | COMPLETAR | COMPLETAR |
-| 8 | COMPLETAR | COMPLETAR | COMPLETAR |
-| 15 | COMPLETAR | COMPLETAR | COMPLETAR |
-| 30 | COMPLETAR | COMPLETAR | COMPLETAR |
-| 60 | COMPLETAR | COMPLETAR | COMPLETAR |
-| 100 | COMPLETAR | COMPLETAR | COMPLETAR |
+### 1.1 Mediciones registradas
 
-**Importante:** el umbral de alerta es ≤ 8 cm y en el chat se indicó que el AJ-SR04M tiene una zona ciega de unos 20–25 cm (dato sin verificar). Incluye puntos por debajo de 20 cm para comprobar si el sensor mide a 8 cm. Si no mide, hay que rediseñar el montaje o el umbral, y eso es un hallazgo del informe.
-
-**Conclusión:** COMPLETAR.
-
-## Prueba 2 — Detección de niveles elevados
-
-**Objetivo:** comprobar que, cuando el agua supera el umbral, se declara la alerta y la página la muestra.
-**Comportamiento esperado según el código:** a ≤ 8.0 cm el estado pasa a VERIFICANDO y a los 5 s seguidos pasa a ALERTA (LED encendido, banner, sonido y notificación en la página). Si el agua baja antes de 5 s, vuelve a NORMAL sin alerta.
-
-| Ensayo | Distancia mantenida | Tiempo hasta ALERTA (s) | LED | Banner y sonido en la web | Resultado |
+| Distancia real (cm) | Medición 1 | Medición 2 | Medición 3 | Medición 4 | Medición 5 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| 1 | COMPLETAR | COMPLETAR | COMPLETAR | COMPLETAR | COMPLETAR |
-| 2 (se retira antes de 5 s) | COMPLETAR | No debe haber alerta | COMPLETAR | COMPLETAR | COMPLETAR |
-| 3 | COMPLETAR | COMPLETAR | COMPLETAR | COMPLETAR | COMPLETAR |
+| 30 | 31,7 | 32,0 | 30,0 | 30,0 | 29,8 |
+| 60 | 60,0 | 60,0 | 62,0 | 60,0 | 61,0 |
+| 100 | 100,2 | 99,8 | 100,0 | 100,0 | 100,0 |
 
-**Conclusión:** COMPLETAR.
+### 1.2 Resultados
 
-## Prueba 3 — Transmisión y almacenamiento
+| Distancia real (cm) | Medida promedio (cm) | Error (cm) | Error relativo | Variación entre lecturas, máx − mín (cm) | Desviación estándar (cm) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 30 | 30,70 | +0,70 | 2,3 % | 2,2 | 1,06 |
+| 60 | 60,60 | +0,60 | 1,0 % | 2,0 | 0,89 |
+| 100 | 100,00 | 0,00 | 0,0 % | 0,4 | 0,14 |
 
-**Objetivo:** verificar que las mediciones lleguen a la página y que el historial quede guardado.
+*Error = promedio − distancia real. Error relativo = |error| / distancia real. Desviación estándar muestral (n = 5).*
 
-| Verificación | Cómo se comprueba | Resultado |
-| :--- | :--- | :--- |
-| Llegada por USB (Web Serial) | La página muestra la distancia y el estado | COMPLETAR |
-| Llegada por WiFi | `GET /estado` devuelve JSON válido y la página se actualiza cada 1 s | COMPLETAR |
-| Pérdida de WiFi | Apagar el router y comprobar que la placa reintenta y el LED sigue funcionando | COMPLETAR |
-| Historial guardado | COMPLETAR (ver nota) | COMPLETAR |
+**Nota:** no se midieron puntos bajo 20 cm. El firmware descarta toda lectura menor a 20 cm (`DIST_MIN_CM = 20.0`), porque el AJ-SR04M tiene una zona ciega de unos 20–25 cm según su fabricante. Por eso el sensor debe instalarse a más de 20 cm del nivel máximo de agua que se quiera detectar.
 
-**Nota:** en la versión de este repositorio el historial es una lista en la página y **se pierde al recargarla**. Si la pauta exige que quede guardado, hay que (a) guardarlo en la página (por ejemplo con `localStorage`), o (b) usar la versión con base de datos (Railway + Aiven), cuyas pruebas (`/api/salud`, respuesta `201` del POST, filas en la base) tampoco constan en el chat.
+**Conclusión:** en el rango probado (30 a 100 cm) el error promedio fue menor a 1 cm y el error relativo no superó el 2,3 %, lo que es suficiente para monitorear el nivel de un sumidero. A 100 cm la medición fue prácticamente exacta (error 0,0 cm y variación de solo 0,4 cm). A corta distancia el sensor mide levemente de más (+0,7 cm a 30 cm) y con algo más de dispersión, lo que es coherente con la cercanía a su zona ciega. Se recomienda instalar el sensor de modo que el agua quede normalmente a más de 30 cm de él.
 
-## Registro de fallas encontradas
+## Prueba 2 — Seguridad y validación de la API
 
-Fallas documentadas en el chat de tutoría, 16 al 21 de noviembre de 2026.
+**Objetivo:** verificar que el servidor esté disponible, que solo acepte mediciones de dispositivos autorizados y que rechace datos con formato incorrecto.
 
-| Falla | Causa | Solución | Estado |
-| :--- | :--- | :--- | :--- |
-| A. El sensor no responde: 5 lecturas vacías y el mensaje "el sensor no responde" (ECHO nunca subió en 40 ms) | COMPLETAR | COMPLETAR | Abierta en el chat |
-| B. El texto del programa no llega al Monitor Serial (solo aparece la línea del ROM del chip), aunque el programa corre (el LED parpadea) | COMPLETAR (sospecha: configuración USB / CDC) | COMPLETAR | Abierta en el chat |
-| C. Archivos mal nombrados (`package.jsn`, `server.jsn`) | Error al escribir los nombres | Renombrar a `package.json` y `server.js` | Corrección indicada |
-| D. `npm` bloqueado por la política de ejecución de PowerShell | Windows bloquea scripts `.ps1` por defecto | `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` | Resuelta |
-| E. `git clone` ejecutado dentro de `C:\Windows\System32` | Terminal abierta en la carpeta equivocada | Clonar dentro de Documentos | Resuelta |
+**Alcance:** esta prueba evalúa el servidor de forma independiente de la placa. El envío desde la ESP32 hasta la base de datos no forma parte de esta prueba.
 
-### Análisis de la falla A (sensor sin respuesta)
+### 2.1 Pruebas del servidor en Railway (22-11-2026)
 
-* **Qué ocurrió:** con el código de diagnóstico, las 5 lecturas salieron vacías y se informó que el sensor no respondía.
-* **Pruebas propuestas en el chat (sin resultados registrados):** escuchar el "tic-tic" del transductor al disparar, medir 5 V con multímetro, revisar el conector del cable de la sonda, revisar la resistencia R19 del módulo (debe estar vacía para el modo TRIG/ECHO), revisar los pines 5 y 4 y el divisor de voltaje.
-* **Causa encontrada y solución:** COMPLETAR. Anotar también qué cambió la única vez que el monitor sí mostró datos.
-* **Relación con el problema inicial:** sin eco no hay medición y el sistema no puede detectar un nivel anormal. El firmware ya evita confundir "sin eco" con "nivel normal": no cambia de estado e informa el error.
-* **Mejora aplicada:** COMPLETAR.
+Ejecutadas con `curl` contra `https://monitor-sumidero-production.up.railway.app`.
 
-### Análisis de la falla B (texto no llega por USB)
+| Verificación | Solicitud | Resultado esperado | Resultado obtenido | Estado |
+| :--- | :--- | :--- | :--- | :--- |
+| Dashboard disponible | `GET /` | `200` | `200` (0,49 s) | ✅ Aprobada |
+| POST sin clave | `POST /api/mediciones` sin `x-api-key` | `401` | `401` `{"error":"API key invalida"}` | ✅ Aprobada |
+| POST con clave incorrecta | `POST /api/mediciones` con `x-api-key: clave-incorrecta` | `401` | `401` `{"error":"API key invalida"}` | ✅ Aprobada |
+| Ruta inexistente | `POST /` | `404` | `404` | ✅ Aprobada |
 
-* **Relación con el problema inicial:** afecta al modo Web Serial, porque la página lee ese mismo texto.
-* **Hipótesis descartadas en el chat:** PSRAM mal configurada, tamaño de flash incorrecto, modo de flash.
-* **Pendiente en el chat:** probar con DTR activado (`$p.DtrEnable = $true`) y alternativa de cambiar USB Mode a USB-OTG (TinyUSB). Resultado: COMPLETAR.
+### 2.2 Validación de datos (servidor ejecutado localmente)
+
+Se ejecutó `server.js` en un computador local con una clave de prueba, para comprobar la validación sin modificar los datos reales.
+
+| Caso | Cuerpo enviado | Resultado esperado | Resultado obtenido | Estado |
+| :--- | :--- | :--- | :--- | :--- |
+| Falta `dispositivo` | `{"distancia_cm":50}` | `400` | `400` `Falta 'dispositivo' o 'distancia_cm' no es numero` | ✅ Aprobada |
+| `distancia_cm` como texto | `{"dispositivo":"p","distancia_cm":"50"}` | `400` | `400` `Falta 'dispositivo' o 'distancia_cm' no es numero` | ✅ Aprobada |
+| `bateria_v` como texto | `{"dispositivo":"p","distancia_cm":50,"bateria_v":"x"}` | `400` | `400` `'bateria_v' debe ser numero o null` | ✅ Aprobada |
+| Error interno sin exponer detalles | `{"dispositivo":"p","distancia_cm":50,"bateria_v":null}` sin base de datos conectada | `500` con mensaje genérico | `500` `{"error":"Error al guardar"}` (el detalle queda solo en el log) | ✅ Aprobada |
+| Clave incorrecta | `x-api-key: otra` | `401` | `401` | ✅ Aprobada |
+| Variable `API_KEY` vacía, POST sin clave | sin `x-api-key` | `401` | `401` | ✅ Aprobada |
+
+**Conclusión:** las 10 verificaciones fueron aprobadas. El servidor está publicado y responde. Solo acepta mediciones que traen la clave correcta, también cuando la variable `API_KEY` no está configurada. Rechaza con `400` los datos con formato incorrecto y no muestra detalles internos cuando ocurre un error. Esto protege la base de datos de envíos no autorizados o mal formados.
