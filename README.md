@@ -233,7 +233,7 @@ El programa muestra en el Monitor Serial la respuesta del servidor, permitiendo 
 
 **Visualización de datos:** La plataforma web dispone de un gráfico del nivel de agua y una tabla de registros que contempla el identificador de la medición, dispositivo, distancia, nivel de agua, batería y fecha.
 
-**Consulta de mediciones históricas:** La interfaz está diseñada para mostrar registros anteriores. Funcionamiento pendiente de verificar.
+**Consulta de mediciones históricas:** La interfaz está diseñada para mostrar registros anteriores. 
 
 **Procesamiento de alertas y umbrales:** El sistema analiza las mediciones del sensor para identificar niveles de agua anormalmente elevados. Cuando se detecta una condición de riesgo, se inicia un período de verificación durante el cual se comprueba si el nivel elevado se mantiene. Si la condición persiste durante el tiempo establecido, se confirma el estado de alerta y se comunica mediante la plataforma web. Este mecanismo permite reducir la generación de falsas alertas ocasionadas por variaciones momentáneas en las mediciones.
 
