@@ -4,8 +4,6 @@ Sistema IoT basado en una ESP32-S3 Super Mini y un sensor ultrasónico impermeab
 
 > Curso: TEI201 — Taller de diseño en ingeniería · Entrega: Avance 3
 
-> **Todo lo marcado como `COMPLETAR` es información que no estaba en el repositorio ni en el chat de tutoría. Busca `COMPLETAR` en todo el repositorio antes de entregar.**
-
 ## Integrantes del equipo
 
 - Olivia Betinyani
