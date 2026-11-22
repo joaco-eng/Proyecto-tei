@@ -13,7 +13,11 @@ El sensor mide la distancia hasta la superficie del agua y la ESP32 procesa las 
 
 ### Esquemático del circuito
 
-**Esquemático actualizado: COMPLETAR**
+El siguiente esquema representa las conexiones del prototipo final, compuesto por una ESP32-S3 Super Mini y un sensor ultrasónico impermeable AJ-SR04M, alimentados mediante una powerbank por USB.
+
+![Esquemático del prototipo](esquematico.png)
+
+
 
 ### Tabla de conexiones
 
