@@ -68,31 +68,17 @@ Los costos deben corresponder a los materiales utilizados en la construcción de
 
 ## 4. Fotografías del prototipo
 
-Se incluyen fotografías reales del montaje final, tomadas desde distintos ángulos, para mostrar la distribución de los componentes y las conexiones.
-
 ### 4.1 Vista frontal
 
-**Fotografía: COMPLETAR**
-
-Mostrar una vista general del prototipo final, incluyendo la ESP32, el sensor impermeable y su montaje.
-
-Archivo propuesto: `fotos/vista-frontal.jpg`
+![Vista frontal del prototipo](vista-frontal.jpg)
 
 ### 4.2 Vista lateral
 
-**Fotografía: COMPLETAR**
-
-Mostrar la disposición de los componentes y las conexiones desde un costado.
-
-Archivo propuesto: `fotos/vista-lateral.jpg`
+![Vista lateral del prototipo](vista-lateral.jpg)
 
 ### 4.3 Vista interior
 
-**Fotografía: COMPLETAR**
-
-Mostrar el interior del encapsulado, la ubicación de la ESP32 y las conexiones del sensor.
-
-Archivo propuesto: `fotos/vista-interior.jpg`
+![Vista interior del prototipo](vista-interior.jpg)
 
 ---
 
