@@ -239,5 +239,3 @@ El programa muestra en el Monitor Serial la respuesta del servidor, permitiendo 
 
 ---
 
-
-Si editas `index.html`, ejecuta `./generar_pagina.sh` para actualizar `sumidero_wifi/pagina.h` antes de volver a cargar el firmware.
