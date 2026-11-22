@@ -104,7 +104,7 @@ El dispositivo obtiene mediciones de distancia, las procesa y las transmite medi
 | :--- | :--- |
 | Microcontrolador | ESP32-S3 Super Mini |
 | Sensor | AJ-SR04M (ultrasónico impermeable, sonda con cable) |
-| Alimentación | Powerbank por USB (100 × 70 × 25 mm). Modelo exacto: **COMPLETAR** |
+| Alimentación | Powerbank por USB. Dimensiones: 100 × 20 × 20 mm. |
 | PCB perforada | Soporta la ESP32 y las conexiones del sensor (60 × 40 mm, 38 mm de alto) |
 | Encapsulado | Caja impresa en 3D (PLA), diseñada en Fusion 360, con tapa fijada mediante tornillos M3 e insertos de bronce. Ver [Diseño 3D](diseno-3d/README.md) |
 
@@ -227,15 +227,17 @@ La información se envía cada 10 segundos, siempre que exista una medición vá
 
 El programa muestra en el Monitor Serial la respuesta del servidor, permitiendo identificar si el envío fue recibido o si ocurrió algún error.
 
-**Servidor utilizado:** Railway.
+**Servidor:** Railway.
 
-**Dirección de la API:** https://monitor-sumidero-production.up.railway.app
+**Dashboard:** https://monitor-sumidero-production.up.railway.app/
 
-**Almacenamiento de datos:** COMPLETAR según la implementación del servidor.
+**Visualización de datos:** La plataforma web dispone de un gráfico del nivel de agua y una tabla de registros que contempla el identificador de la medición, dispositivo, distancia, nivel de agua, batería y fecha.
 
-**Consulta de mediciones históricas:** COMPLETAR.
+**Consulta de mediciones históricas:** La interfaz está diseñada para mostrar registros anteriores. Funcionamiento pendiente de verificar.
 
-**Procesamiento de alertas y umbrales:** COMPLETAR según la lógica implementada en el servidor.
+**Procesamiento de alertas y umbrales:** El sistema analiza las mediciones del sensor para identificar niveles de agua anormalmente elevados. Cuando se detecta una condición de riesgo, se inicia un período de verificación durante el cual se comprueba si el nivel elevado se mantiene. Si la condición persiste durante el tiempo establecido, se confirma el estado de alerta y se comunica mediante la plataforma web. Este mecanismo permite reducir la generación de falsas alertas ocasionadas por variaciones momentáneas en las mediciones.
+
+
 
 ---
 
