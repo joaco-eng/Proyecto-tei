@@ -1,73 +1,186 @@
+
 # Hardware
 
-> Todo lo marcado como `COMPLETAR` falta en el repositorio y en el chat de tutoría.
+Documentación del prototipo final de monitoreo del nivel de agua en sumideros urbanos.
 
-## Esquemático
+El sistema está compuesto por una **ESP32-S3 Super Mini** y un **sensor ultrasónico impermeable AJ-SR04M**, alimentados mediante una powerbank por USB.
 
-![Esquemático del circuito](esquematico.svg)
+El sensor mide la distancia hasta la superficie del agua y la ESP32 procesa las mediciones, permitiendo detectar niveles anormales y comunicar alertas mediante WiFi a una plataforma web.
 
-**Es un borrador hecho a partir del código y del chat.** Revísalo contra el montaje real: faltan los valores del divisor de voltaje y la fuente exacta de los 5 V del sensor. Reemplázalo por el esquemático definitivo (por ejemplo exportado de Fritzing o KiCad) en `esquematico.svg` o `esquematico.pdf`.
+---
 
-### Conexiones
+## 1. Esquemático y conexiones
 
-| Desde | Hacia | Observación |
+### Esquemático del circuito
+
+**Esquemático actualizado: COMPLETAR**
+
+### Tabla de conexiones
+
+| Señal | Pin / GPIO | Detalle de conexión |
 | :--- | :--- | :--- |
-| GPIO 5 (ESP32) | TRIG del sensor | |
-| ECHO del sensor | Divisor de voltaje → GPIO 4 | El sensor trabaja a 5 V y la ESP32 a 3.3 V |
-| 5 V | VCC del sensor | COMPLETAR: ¿del pin 5V de la placa o directo de la powerbank? |
-| GND | GND del sensor, del LED y de la ESP32 | Tierra común |
-| GPIO 6 (ESP32) | Resistencia de 220 Ω → LED → GND | |
-| Powerbank (USB) | Puerto USB de la ESP32 | Alimentación del sistema |
+| **TRIG** | GPIO 5 | Señal de activación del sensor ultrasónico |
+| **ECHO** | GPIO 4 | Señal de respuesta del sensor, conectada directamente a la ESP32 |
+| **VCC sensor** | 5 V | Alimentación del sensor ultrasónico impermeable |
+| **GND** | GND | Tierra común entre la ESP32 y el sensor |
+| **Alimentación** | USB | Powerbank conectada a la ESP32 |
+| **Comunicación** | WiFi de la ESP32 | Transmisión inalámbrica de las mediciones al sistema web |
 
-**Divisor de voltaje en ECHO:** R1 = COMPLETAR, R2 = COMPLETAR. (En el chat se sugirió 1 kΩ en serie y 2 kΩ a GND, pero no hay confirmación de lo que se montó.)
+La ESP32 recibe las mediciones del sensor y las procesa según los parámetros programados. Posteriormente, la información se comunica mediante WiFi a la plataforma digital, donde se visualizan los niveles de agua y las alertas correspondientes.
 
-## Modelo exacto de los componentes
+---
 
-| Componente | Modelo | Datos |
-| :--- | :--- | :--- |
-| Placa | ESP32-S3 Super Mini | Chip ESP32-S3 (QFN56, rev v0.2), WiFi, BT 5 (LE), doble núcleo a 240 MHz, flash de 4 MB. LED RGB integrado en el GPIO 48 (se comprobó que parpadea). |
-| Sensor | AJ-SR04M | Ultrasónico con sonda separada y cable. ¿Impermeable? COMPLETAR (hoja de datos o vendedor). |
-| Alimentación | Powerbank 100 × 70 × 25 mm | Modelo y capacidad: COMPLETAR |
+## 2. Modelo exacto de los componentes
 
-## Lista de materiales (BOM)
+| Componente | Modelo / Especificación |
+| :--- | :--- |
+| Microcontrolador | ESP32-S3 Super Mini |
+| Sensor | AJ-SR04M (ultrasónico impermeable, sonda con cable) |
+| Alimentación | Powerbank por USB (100 × 70 × 25 mm). Marca, modelo y capacidad: **COMPLETAR** |
+| PCB perforada | Soporte para la ESP32 y las conexiones del sensor (60 × 40 mm, 38 mm de alto) |
+| Encapsulado | Caja impresa en 3D (PLA), diseñada en Fusion 360, con tapa fijada mediante tornillos M3 e insertos de bronce. Ver [Diseño 3D](../diseno-3d/README.md) |
+| Cables y conectores | Conexiones entre ESP32, sensor y alimentación. Cantidad: **COMPLETAR** |
+
+---
+
+## 3. Lista de materiales (BOM)
+
+La siguiente tabla presenta los componentes utilizados para construir el prototipo, incluyendo las cantidades y los costos asociados.
 
 | Cant. | Descripción | Precio unitario | Costo total | Dónde se compró |
 | :--- | :--- | :--- | :--- | :--- |
-| COMPLETAR | ESP32-S3 Super Mini | COMPLETAR | COMPLETAR | COMPLETAR |
-| COMPLETAR | Sensor ultrasónico AJ-SR04M | COMPLETAR | COMPLETAR | COMPLETAR |
-| COMPLETAR | Powerbank 100 × 70 × 25 mm | COMPLETAR | COMPLETAR | COMPLETAR |
-| COMPLETAR | Resistencias del divisor de ECHO | COMPLETAR | COMPLETAR | COMPLETAR |
-| COMPLETAR | LED | COMPLETAR | COMPLETAR | COMPLETAR |
-| COMPLETAR | Resistencia 220 Ω | COMPLETAR | COMPLETAR | COMPLETAR |
-| COMPLETAR | PCB perforada | COMPLETAR | COMPLETAR | COMPLETAR |
-| COMPLETAR | Insertos de bronce M3 (3 × 5 × 4 mm) y tornillos M3 | COMPLETAR | COMPLETAR | COMPLETAR |
-| COMPLETAR | Filamento PLA | COMPLETAR | COMPLETAR | COMPLETAR |
-| COMPLETAR | Cables, conectores y otros | COMPLETAR | COMPLETAR | COMPLETAR |
+| 1 | ESP32-S3 Super Mini | COMPLETAR | COMPLETAR | COMPLETAR |
+| 1 | Sensor ultrasónico impermeable AJ-SR04M | COMPLETAR | COMPLETAR | COMPLETAR |
+| 1 | Powerbank por USB | COMPLETAR | COMPLETAR | COMPLETAR |
+| 1 | PCB perforada (60 × 40 mm) | COMPLETAR | COMPLETAR | COMPLETAR |
+| COMPLETAR | Tornillos M3 e insertos de bronce | COMPLETAR | COMPLETAR | COMPLETAR |
+| COMPLETAR | Filamento PLA para el encapsulado | COMPLETAR | COMPLETAR | COMPLETAR |
+| COMPLETAR | Cables y conectores | COMPLETAR | COMPLETAR | COMPLETAR |
 | | **TOTAL** | | **COMPLETAR** | |
 
-## Fotografías
+Los costos deben corresponder a los materiales utilizados en la construcción del prototipo.
 
-Mínimo tres ángulos del prototipo ensamblado. Guárdalas en `hardware/fotos/`.
+---
 
-| Archivo | Qué muestra |
-| :--- | :--- |
-| `fotos/vista-frontal.jpg` | COMPLETAR |
-| `fotos/vista-lateral.jpg` | COMPLETAR |
-| `fotos/vista-interior.jpg` | COMPLETAR |
+## 4. Fotografías del prototipo
 
-## Justificación de componentes
+Se incluyen fotografías reales del montaje final, tomadas desde distintos ángulos, para mostrar la distribución de los componentes y las conexiones.
 
-> Borrador: confirma que refleja las razones reales del grupo, y completa las alternativas descartadas, que no constan en el chat.
+### 4.1 Vista frontal
 
-| Componente | Por qué se eligió | Alternativas descartadas |
-| :--- | :--- | :--- |
-| ESP32-S3 Super Mini | WiFi integrado para servir la página, USB nativo para el modo Web Serial y tamaño pequeño para caber en la caja. COMPLETAR: razón real del grupo | COMPLETAR |
-| AJ-SR04M | Sonda separada del módulo, que permite dejar la electrónica dentro de la caja y el sensor mirando al agua. COMPLETAR: razón real del grupo | COMPLETAR |
-| Divisor de voltaje en ECHO | El sensor entrega 5 V y los pines de la ESP32-S3 toleran 3.3 V | — |
-| Powerbank por USB | Entrega 5 V regulados y no requiere conexión a la red eléctrica. Por eso no se mide la batería (el voltaje no indica la carga). | COMPLETAR |
+**Fotografía: COMPLETAR**
 
-## Limitaciones conocidas del sensor (datos del chat, no verificados por el grupo)
+Mostrar una vista general del prototipo final, incluyendo la ESP32, el sensor impermeable y su montaje.
 
-* Zona ciega de unos 20–25 cm y alcance de unos 600 cm.
-* Pulso de disparo de al menos 10 µs (el código usa 10 µs).
-* **Posible inconsistencia:** el umbral de alerta es ≤ 8 cm, menor que la zona ciega indicada. Hay que confirmar con la hoja de datos y con pruebas si ese valor es medible con este sensor, o si el sensor está montado con una separación respecto al nivel del agua. Ver [testing](../testing/README.md).
+Archivo propuesto: `fotos/vista-frontal.jpg`
+
+### 4.2 Vista lateral
+
+**Fotografía: COMPLETAR**
+
+Mostrar la disposición de los componentes y las conexiones desde un costado.
+
+Archivo propuesto: `fotos/vista-lateral.jpg`
+
+### 4.3 Vista interior
+
+**Fotografía: COMPLETAR**
+
+Mostrar el interior del encapsulado, la ubicación de la ESP32 y las conexiones del sensor.
+
+Archivo propuesto: `fotos/vista-interior.jpg`
+
+---
+
+## 5. Justificación de selección de componentes
+
+### ESP32-S3 Super Mini
+
+Se seleccionó la ESP32-S3 Super Mini debido a su tamaño compacto, capacidad de procesamiento y conectividad WiFi integrada.
+
+Estas características permiten recibir las mediciones del sensor, procesar la información y comunicarla a una plataforma web sin necesidad de utilizar un módulo WiFi adicional.
+
+Además, sus dimensiones facilitan su integración dentro del encapsulado.
+
+### Sensor ultrasónico impermeable AJ-SR04M
+
+Se seleccionó el sensor AJ-SR04M porque permite medir distancias mediante ondas ultrasónicas sin necesidad de establecer contacto directo con la superficie del agua.
+
+Su sonda impermeable resulta adecuada para un proyecto que contempla la presencia de agua y condiciones de humedad.
+
+El sensor permite monitorear las variaciones del nivel de agua dentro del sumidero y detectar condiciones anormales según el umbral programado.
+
+**Rango de medición y precisión del sensor: COMPLETAR**
+
+### Powerbank
+
+Se utiliza una powerbank como fuente de alimentación, permitiendo que el prototipo funcione sin depender de una conexión permanente a un computador o a la red eléctrica.
+
+Esto facilita su transporte y demostración.
+
+**Modelo, capacidad y autonomía: COMPLETAR**
+
+### PCB perforada
+
+La PCB perforada permite organizar y mantener sujetos los componentes electrónicos, facilitando el montaje y la disposición de las conexiones dentro del encapsulado.
+
+### Encapsulado de PLA
+
+El encapsulado fue diseñado en Fusion 360 y fabricado mediante impresión 3D utilizando PLA.
+
+Su función es alojar los componentes electrónicos, mantenerlos organizados y proporcionar una estructura de soporte.
+
+El diseño incorpora una tapa desmontable mediante tornillos M3 e insertos de bronce, facilitando el acceso a los componentes internos.
+
+Para conocer los detalles del diseño, consultar [Diseño 3D](../diseno-3d/README.md).
+
+---
+
+## 6. Diseño para la reparación
+
+El encapsulado fue diseñado considerando la posibilidad de realizar mantenimiento y reemplazar componentes sin necesidad de destruir la estructura.
+
+Para ello, se incorporó una tapa desmontable fijada mediante tornillos M3 e insertos de bronce.
+
+Este mecanismo permite acceder al interior del dispositivo para:
+
+- Inspeccionar el estado de la ESP32.
+- Revisar las conexiones eléctricas.
+- Reemplazar componentes en caso de fallas.
+- Realizar mantenimiento del sistema.
+- Acceder al sensor y su cableado.
+
+**Procedimiento de desmontaje y fotografías: COMPLETAR**
+
+El diseño busca facilitar futuras modificaciones y reparaciones, permitiendo prolongar la vida útil del dispositivo.
+
+---
+
+## 7. Consideraciones técnicas y mejoras futuras
+
+Aunque el prototipo permite realizar mediciones y comunicar información digitalmente, existen aspectos que deben evaluarse antes de considerar su implementación en condiciones reales.
+
+### Protección ambiental
+
+Se debe considerar la protección de los componentes electrónicos frente a la humedad, salpicaduras y otras condiciones presentes en los sumideros.
+
+La sonda del sensor es impermeable, pero los demás componentes requieren una protección adecuada.
+
+### Precisión y rango de medición
+
+Se deben evaluar las mediciones del sensor bajo distintas condiciones para determinar su precisión y comprobar que el umbral de alerta se encuentra dentro de su rango de funcionamiento confiable.
+
+**Resultados de validación: COMPLETAR**
+
+### Autonomía
+
+Se debe evaluar cuánto tiempo puede funcionar el sistema utilizando la powerbank seleccionada.
+
+**Autonomía experimental: COMPLETAR**
+
+### Instalación y mantenimiento
+
+Se debe estudiar la ubicación más adecuada para instalar el dispositivo dentro de un sumidero real, considerando su estabilidad, protección y facilidad de acceso para mantenimiento.
+
+Los resultados de las pruebas del sistema se documentan en [Testing](../testing/README.md).
+
