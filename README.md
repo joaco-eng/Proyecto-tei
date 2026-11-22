@@ -1,6 +1,8 @@
 # Sistema detector de nivel anormal en sumidero
 
-Sistema IoT basado en una ESP32-S3 Super Mini y un sensor ultrasónico impermeable AJ-SR04M, diseñado para monitorear el nivel de agua en sumideros urbanos y detectar aumentos anormales que podrían provocar desbordamientos. Las mediciones se procesan mediante la ESP32 y se transmiten a una plataforma web, donde se puede visualizar el nivel del agua en tiempo real y recibir alertas digitales mediante avisos visuales, sonidos y notificaciones.
+Sistema IoT basado en una ESP32-S3 Super Mini y un sensor ultrasónico impermeable AJ-SR04M, diseñado para monitorear el nivel de agua en sumideros urbanos y detectar posibles situaciones de riesgo por acumulación excesiva de agua.
+
+El dispositivo obtiene mediciones de distancia, las procesa y las transmite mediante WiFi a un servidor externo alojado en Railway. Esta información puede utilizarse para visualizar el nivel de agua y generar alertas digitales mediante una plataforma web.
 
 > Curso: TEI201 — Taller de diseño en ingeniería · Entrega: Avance 3
 
@@ -11,12 +13,11 @@ Sistema IoT basado en una ESP32-S3 Super Mini y un sensor ultrasónico impermeab
 - Joaquín Zavala
 - Antonia Uribe
 
-
 ## Enlaces rápidos
 
-* **Dashboard (conexión por USB):** https://joaco-eng.github.io/Proyecto-tei/
-* **Dashboard (conexión por WiFi):** `http://<IP de la placa>` (la IP aparece en el Monitor Serial al conectarse)
-* Documentación por carpeta: [Hardware](hardware/README.md) · [Software](software/README.md) · [Diseño 3D](diseno-3d/README.md) · [Testing](testing/README.md) · [Iteraciones](iteraciones/README.md) · [Documentación final](documentacion/README.md) · [Fuentes e IA](FUENTES.md)
+* **Dashboard:** https://joaco-eng.github.io/Proyecto-tei/
+* **Servidor externo:** Railway (servicio de recepción de mediciones mediante HTTPS).
+* **Documentación por carpeta:** [Hardware](hardware/README.md) · [Software](software/README.md) · [Diseño 3D](diseno-3d/README.md) · [Testing](testing/README.md) · [Iteraciones](iteraciones/README.md) · [Documentación final](documentacion/README.md) · [Fuentes e IA](FUENTES.md)
 
 ---
 
@@ -32,57 +33,68 @@ Sistema IoT basado en una ESP32-S3 Super Mini y un sensor ultrasónico impermeab
 
 ## 2. Cómo funciona el sistema
 
-1. La ESP32 dispara el sensor ultrasónico cada 500 ms y calcula la distancia entre el sensor y la superficie del agua.
-2. Si la distancia es **≤ 8.0 cm**, el sistema pasa a **VERIFICANDO**. Si el nivel se mantiene así **5 segundos**, declara **ALERTA**. Si el agua baja antes, vuelve a **NORMAL**.
-3. La propia ESP32 actúa como servidor web: entrega la página del monitor y el estado actual en `/estado` (JSON).
-4. La página muestra la alerta con banner, sonido y notificación del navegador. Puede recibir los datos **por USB** (Web Serial) o **por WiFi**.
-5. Si el sensor no recibe eco, el sistema no lo interpreta como "nivel normal": informa el error por el Monitor Serial.
+1. La ESP32-S3 utiliza el sensor ultrasónico impermeable AJ-SR04M para medir la distancia entre el sensor y la superficie del agua.
 
-El monitoreo y el Monitor Serial funcionan aunque no haya WiFi.
+2. Para obtener una medición más confiable, el programa realiza **5 lecturas consecutivas** y calcula la **mediana** de los valores válidos. De esta manera, se reduce la influencia de lecturas erróneas.
 
-### Lógica de estados
+3. El sistema considera válidas las distancias comprendidas entre **20 y 600 cm**. Si no se obtienen al menos tres lecturas válidas, se descarta la medición.
+
+4. Cada **10 segundos**, la ESP32 transmite la distancia obtenida mediante una conexión WiFi a un servidor externo alojado en Railway, utilizando una solicitud HTTPS.
+
+5. El servidor recibe los datos enviados por la ESP32. Estos pueden utilizarse para registrar las mediciones, visualizar la información y generar alertas digitales mediante una plataforma web.
+
+6. Si el sensor no obtiene una medición válida o se produce un error de transmisión, el programa informa la situación mediante el Monitor Serial.
+
+### Lógica de funcionamiento
 
 ```text
-[ Lectura del sensor ultrasónico impermeable ]
-                    |
-                    v
-            [ Procesamiento ESP32 ]
-                    |
-                    ├── (Distancia > 8.0 cm) ──→ [ Estado NORMAL ]
-                    |
-                    └── (Distancia <= 8.0 cm) ─→ [ Estado VERIFICANDO ]
-                                                    |
-                                            ¿Se mantiene >= 5 s?
-                                                    |
-                                      ├── SÍ → [ Estado ALERTA ]
-                                      |
-                                      └── NO → Continúa verificando
-                                                (Si el nivel vuelve
-                                                a normal, se reinicia)
-                    |
-                    v
-         [ Servidor web de la ESP32 ]
-                    |
-                    v
-         [ Transmisión de datos por WiFi ]
-                    |
-                    v
-              [ Dashboard ]
-                    |
-                    ├── Muestra distancia medida
-                    ├── Muestra estado del sistema
-                    └── Genera alerta visual,
-                        sonora y notificación
+[ Sensor ultrasónico impermeable AJ-SR04M ]
+                     |
+                     v
+             [ ESP32-S3 ]
+                     |
+           Realiza 5 lecturas
+                     |
+                     v
+       [ Validación de mediciones ]
+                     |
+          ¿Hay 3 o más válidas?
+                     |
+          ├── NO → Descarta la medición
+          |
+          └── SÍ → Calcula la mediana
+                     |
+                     v
+         [ Conexión WiFi ]
+                     |
+                     v
+       [ Envío HTTPS cada 10 s ]
+                     |
+                     v
+       [ Servidor externo Railway ]
+                     |
+                     v
+       [ Gestión de datos recibidos ]
+                     |
+                     v
+       [ Dashboard y alertas digitales ]
 ```
 
-## Parámetros de operación
+### Parámetros de operación
 
 | Parámetro | Valor |
 | :--- | :--- |
-| Umbral de alerta | distancia ≤ 8.0 cm |
-| Confirmación | 5000 ms continuos en nivel crítico |
-| Frecuencia de muestreo | una lectura cada 500 ms (`millis()`) |
-| Puerto serie | 9600 baudios |
+| Intervalo de envío | Cada 10000 ms (10 segundos) |
+| Lecturas por medición | 5 |
+| Procesamiento | Cálculo de la mediana |
+| Distancia mínima programada | 20 cm |
+| Distancia máxima programada | 600 cm |
+| Lecturas válidas necesarias | Mínimo 3 de 5 |
+| Puerto serie | 115200 baudios |
+| Conectividad | WiFi de 2.4 GHz |
+| Servidor | Railway |
+| Protocolo de comunicación | HTTPS |
+| Umbral de alerta digital | **COMPLETAR: confirmar configuración del servidor** |
 
 ---
 
@@ -122,12 +134,26 @@ Esquema: [hardware/esquematico.svg](hardware/esquematico.svg).
 2. Verifica que todas las conexiones estén correctamente instaladas.
 3. Alimenta la ESP32 mediante la powerbank o el cable USB del computador.
 
+
 ### 5.2 Cargar el código en la ESP32
 
-1. Instala el **Arduino IDE** y, en el Gestor de placas, el paquete **esp32 (Espressif)**. La versión registrada en el log de carga fue **4.0.0** (confirmar en *Herramientas → Placa → Gestor de placas*).
-2. No es necesario instalar librerías adicionales: `WiFi`, `WebServer`, `DNSServer` y `Preferences` vienen incluidas en el paquete esp32.
-3. Abre `sumidero_wifi/sumidero_wifi.ino` (el archivo `pagina.h` debe encontrarse en la misma carpeta).
-4. Configura *Herramientas* de la siguiente manera:
+1. Instala **Arduino IDE** y el paquete de placas **esp32 (Espressif)** desde el Gestor de placas.
+
+2. Instala la librería **ArduinoJson versión 7** desde el Gestor de Bibliotecas. Las librerías `WiFi.h`, `WiFiClientSecure.h` y `HTTPClient.h` vienen incluidas en el paquete ESP32.
+
+3. Abre el archivo `monitor_sumidero.ino`, correspondiente al programa final del dispositivo.
+
+4. Configura los datos necesarios para la conexión WiFi y la comunicación con el servidor:
+
+   - `WIFI_SSID`: nombre de la red WiFi.
+   - `WIFI_PASS`: contraseña de la red.
+   - `SERVER_URL`: dirección del servidor externo.
+   - `API_KEY`: clave utilizada para autorizar el envío de mediciones.
+   - `DISPOSITIVO`: identificador de la ESP32.
+
+   **Importante:** las contraseñas y claves reales no deben publicarse en GitHub.
+
+5. Configura las opciones de la placa en Arduino IDE:
 
 | Opción | Valor |
 | :--- | :--- |
@@ -141,66 +167,77 @@ Esquema: [hardware/esquematico.svg](hardware/esquematico.svg).
 | PSRAM | Disabled |
 | Upload Speed | 921600 |
 
-5. Selecciona el puerto correspondiente a la ESP32 y pulsa **Subir**.
-6. Abre el Monitor Serial a **9600 baudios** para verificar las mediciones del sensor y el estado de la conexión.
+**Nota:** comprobar que estas opciones coincidan con la configuración utilizada para cargar el programa final.
 
-### 5.3 Abrir la página y consultar los datos
+6. Selecciona el puerto correspondiente a la ESP32 y presiona **Subir**.
 
-**Por USB**
+7. Abre el Monitor Serial a **115200 baudios** para comprobar las mediciones y la comunicación con el servidor.
 
-1. Abre https://joaco-eng.github.io/Proyecto-tei/ en **Chrome o Edge de escritorio** (utilizando Web Serial).
-2. Cierra previamente el Monitor Serial de Arduino IDE para evitar que el puerto quede ocupado.
-3. Pulsa **Conectar placa** y selecciona el puerto correspondiente a la ESP32.
-4. Una vez establecida la conexión, la página mostrará las mediciones del sensor y el estado del sistema en tiempo real.
+### 5.3 Conexión WiFi y consulta de datos
 
-**Por WiFi (sin claves en el código)**   **Hay q actualizarlo al servidor** 
+**Conexión WiFi**
 
-1. En el primer uso, la ESP32 crea una red llamada **`Sumidero-Setup`** (sin contraseña). Conéctate desde un celular o computador. Si la página de configuración no se abre automáticamente, ingresa a `http://192.168.4.1`.
-2. Selecciona una red WiFi de **2.4 GHz**, ingresa su contraseña y pulsa **Guardar y conectar**. La configuración queda almacenada en la memoria de la ESP32.
-3. En el Monitor Serial (9600 baudios) aparecerá el mensaje `WiFi conectado. Abre http://<IP>`, indicando la dirección IP asignada a la placa.
-4. Ingresa a esa dirección IP desde un dispositivo conectado a la misma red WiFi. La ESP32 funciona como servidor web local y permite consultar las mediciones y el estado del sistema.
-5. La página actualiza periódicamente los datos del sensor y muestra las alertas cuando se detecta un nivel de agua anormalmente elevado.
-6. Para cambiar de red WiFi, ingresa a `http://<IP>/olvidar`. La ESP32 eliminará la configuración guardada y volverá a crear la red `Sumidero-Setup`. Esto también ocurre si no consigue conectarse a la red almacenada.
+1. La ESP32 utiliza las credenciales configuradas en el programa para conectarse automáticamente a una red WiFi de **2.4 GHz**.
 
-### 5.4 Interfaz de red
+2. Una vez establecida la conexión, la ESP32 obtiene una dirección IP dentro de la red y queda habilitada para comunicarse con el servidor mediante Internet.
 
-La ESP32 funciona como servidor web local, permitiendo consultar las mediciones del sensor y el estado del sistema mediante las siguientes rutas:
+3. Cada 10 segundos, el dispositivo procesa las mediciones del sensor y envía los datos válidos a una API externa alojada en **Railway**, utilizando una solicitud HTTPS.
 
-- `GET /` → Entrega la página web de monitoreo.
-- `GET /estado` → Devuelve las mediciones y el estado actual del sistema en formato JSON.
-- `GET /olvidar` → Elimina la configuración WiFi almacenada y reinicia la placa.
+4. Si se pierde la conexión WiFi, el programa intenta restablecerla para continuar enviando información.
 
-**Ejemplo de respuesta de `/estado`:**
+5. El Monitor Serial permite verificar si la conexión está activa y observar las respuestas del servidor ante cada envío.
+
+**Consulta de datos mediante la página web**
+
+1. La plataforma web permite consultar las mediciones recibidas por el sistema y visualizar la información del sumidero.
+
+2. A diferencia de la versión anterior, la ESP32 no funciona como servidor web local. Su función es enviar las mediciones al servidor externo.
+
+3. El dashboard debe comunicarse con el servidor para obtener los datos y presentar las mediciones, el historial y las alertas correspondientes.
+
+4. Al utilizar un servidor externo accesible por Internet, el dispositivo que consulta el dashboard no necesita estar conectado a la misma red WiFi de la ESP32.
+
+**Enlace del dashboard:** https://joaco-eng.github.io/Proyecto-tei/
+
+**COMPLETAR:** confirmar que la versión final del dashboard obtiene los datos directamente del servidor Railway.
+
+### 5.4 Comunicación con el servidor
+
+La ESP32 transmite las mediciones a una API alojada en Railway mediante solicitudes HTTPS de tipo POST.
+
+El programa utiliza una clave de autenticación para autorizar el envío de información.
+
+**Datos enviados al servidor:**
 
 ```json
 {
-  "distancia": 7.5,
-  "estado": "ALERTA"
+  "dispositivo": "esp32-sumidero",
+  "distancia_cm": 45.5,
+  "bateria_v": null
 }
 ```
 
-**Estados posibles:**
+Este ejemplo representa el formato de los datos enviados:
 
-- **NORMAL:** El nivel de agua se encuentra dentro del rango establecido.
-- **VERIFICANDO:** Se detecta un nivel elevado y el sistema comprueba si la condición persiste.
-- **ALERTA:** Se confirma un nivel de agua anormalmente elevado y se comunica la alerta a la página web.
+- `dispositivo`: identificador de la ESP32.
+- `distancia_cm`: distancia medida por el sensor, expresada en centímetros.
+- `bateria_v`: valor de batería, actualmente sin medición.
+
+La información se envía cada 10 segundos, siempre que exista una medición válida y conexión a Internet.
+
+El programa muestra en el Monitor Serial la respuesta del servidor, permitiendo identificar si el envío fue recibido o si ocurrió algún error.
+
+**Servidor utilizado:** Railway.
+
+**Dirección de la API:** https://monitor-sumidero-production.up.railway.app
+
+**Almacenamiento de datos:** COMPLETAR según la implementación del servidor.
+
+**Consulta de mediciones históricas:** COMPLETAR.
+
+**Procesamiento de alertas y umbrales:** COMPLETAR según la lógica implementada en el servidor.
 
 ---
 
-## 6. Estructura del repositorio
-
-```
-├── README.md                  ← este archivo
-├── FUENTES.md                 ← librerías, código externo e inteligencia artificial
-├── index.html                 ← página web del monitor
-├── generar_pagina.sh          ← regenera sumidero_wifi/pagina.h desde index.html
-├── sumidero_wifi/             ← firmware de la ESP32 (.ino) y página incrustada (pagina.h)
-├── software/                  ← documentación técnica del código, dependencias y configuración
-├── hardware/                  ← esquemático, BOM, fotografías, justificación de componentes
-├── diseno-3d/                 ← modelo Fusion 360, renders y planos técnicos
-├── testing/                   ← protocolo, resultados y análisis de fallas
-├── iteraciones/               ← evolución del proyecto (una carpeta por versión)
-└── documentacion/             ← reporte final (8 páginas) y presentación del avance 3
-```
 
 Si editas `index.html`, ejecuta `./generar_pagina.sh` para actualizar `sumidero_wifi/pagina.h` antes de volver a cargar el firmware.
