@@ -80,16 +80,6 @@ Los valores corresponden a los costos informados por el equipo. Algunos material
 | 4 | Cables y conectores | $0 | $0 | Laboratorio DEC |
 | | **TOTAL** | | **$33.770** | |
 
-**Consideraciones del presupuesto:**
-
-El sensor ultrasónico registra un precio base de $9.990 y un costo final de adquisición de $14.980. La diferencia podría corresponder a gastos de despacho u otros cargos asociados a la compra; no se dispone de un desglose individual de esos cargos.
-
-En el caso de los tornillos e insertos, se mantiene el costo registrado por el equipo.
-
-Los materiales obtenidos del Laboratorio DEC presentan un costo directo de $0 para el grupo, aunque poseen un valor comercial.
-
-El costo total registrado del prototipo es de **$33.770 CLP**, sin asignar un valor comercial adicional a los materiales facilitados por el laboratorio.
-
 ---
 
 ## 4. Fotografías del prototipo
