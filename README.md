@@ -1,6 +1,6 @@
 # Sistema detector de nivel anormal en sumidero
 
-Sistema embebido (ESP32-S3) que mide con un sensor ultrasónico la distancia al agua de un sumidero y avisa de una posible obstrucción o desborde mediante un LED y una página web (banner, sonido y notificación).
+Sistema IoT basado en una ESP32-S3 Super Mini y un sensor ultrasónico impermeable AJ-SR04M, diseñado para monitorear el nivel de agua en sumideros urbanos y detectar aumentos anormales que podrían provocar desbordamientos. Las mediciones se procesan mediante la ESP32 y se transmiten a una plataforma web, donde se puede visualizar el nivel del agua en tiempo real y recibir alertas digitales mediante avisos visuales, sonidos y notificaciones.
 
 > Curso: TEI201 — Taller de diseño en ingeniería · Entrega: Avance 3
 
@@ -84,7 +84,7 @@ El monitoreo y el Monitor Serial funcionan aunque no haya WiFi.
 | Umbral de alerta | distancia ≤ 8.0 cm |
 | Confirmación | 5000 ms continuos en nivel crítico |
 | Frecuencia de muestreo | una lectura cada 500 ms (`millis()`) |
-| Puerto serie | 9600 baudios **Verificar en codigo final** |
+| Puerto serie | 9600 baudios |
 
 ---
 
@@ -94,9 +94,8 @@ El monitoreo y el Monitor Serial funcionan aunque no haya WiFi.
 | :--- | :--- |
 | Microcontrolador | ESP32-S3 Super Mini |
 | Sensor | AJ-SR04M (ultrasónico impermeable, sonda con cable) |
-| Divisor de voltaje en ECHO | El sensor funciona a 5 V y la ESP32 a 3.3 V. Valores de las resistencias: **COMPLETAR** |
 | Alimentación | Powerbank por USB (100 × 70 × 25 mm). Modelo exacto: **COMPLETAR** |
-| PCB perforada | Soporta la ESP32 y el divisor de voltaje (60 × 40 mm, 38 mm de alto) |
+| PCB perforada | Soporta la ESP32 y las conexiones del sensor (60 × 40 mm, 38 mm de alto) |
 | Encapsulado | Caja impresa en 3D (PLA), diseñada en Fusion 360, con tapa fijada mediante tornillos M3 e insertos de bronce. Ver [Diseño 3D](diseno-3d/README.md) |
 
 Lista de materiales con costos: [hardware/README.md](hardware/README.md#lista-de-materiales-bom).
@@ -108,9 +107,9 @@ Lista de materiales con costos: [hardware/README.md](hardware/README.md#lista-de
 | Señal | Pin / GPIO | Detalle de conexión |
 | :--- | :--- | :--- |
 | **TRIG** | GPIO 5 | 1.er pin lado derecho (visto desde el conector USB) |
-| **ECHO** | GPIO 4 | 4.º pin lado izquierdo (visto desde el conector USB), a través del divisor de voltaje |
+| **ECHO** | GPIO 4 | 4.º pin lado izquierdo (visto desde el conector USB) |
 | **VCC sensor** | 5 V | Alimentación del sensor ultrasónico impermeable |
-| **GND** | GND | Tierra común entre la ESP32, el sensor y el divisor de voltaje |
+| **GND** | GND | Tierra común entre la ESP32 y el sensor |
 | **Comunicación** | WiFi de la ESP32 | Transmisión inalámbrica de las mediciones al sistema web |
 
 Esquema: [hardware/esquematico.svg](hardware/esquematico.svg).
