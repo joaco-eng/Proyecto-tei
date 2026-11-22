@@ -10,17 +10,20 @@ El sistema permite monitorear las variaciones del nivel de agua y está pensado 
 
 **Dashboard del proyecto:** https://monitor-sumidero-production.up.railway.app/
 
+**Repositorio del código:** https://github.com/JoaquinZavalaM/Monitor-Sumidero
+
 ---
 
 ## 1. Archivos del software
 
 | Archivo | Función |
 | :--- | :--- |
-| `esp32/monitor_sumidero/monitor_sumidero.ino` | Programa que controla la ESP32, realiza las mediciones del sensor y transmite los datos al servidor. |
-| `server.js` (raíz del repositorio) | Servidor Node.js + Express que recibe las mediciones, calcula el nivel de agua, las guarda en PostgreSQL y las entrega al dashboard. |
-| `package.json` / `package-lock.json` (raíz) | Dependencias del servidor. Proyecto `monitor-sumidero` v1.0.0, Node.js ≥ 18. Comando de inicio: `npm start` (`node server.js`). |
-| `public/index.html` | Página web (dashboard) con el gráfico y la tabla de mediciones. La sirve el mismo servidor Express. |
-| `.env.example` (raíz) | Plantilla de las variables privadas del servidor (`DATABASE_URL`, `DB_CA_CERT`, `API_KEY`, `ALTURA_SENSOR_CM`) con valores de ejemplo. El `.env` real está en `.gitignore` y no se publica. |
+| [`esp32/monitor_sumidero/monitor_sumidero.ino`](https://github.com/JoaquinZavalaM/Monitor-Sumidero/blob/main/esp32/monitor_sumidero/monitor_sumidero.ino) | Programa que controla la ESP32, realiza las mediciones del sensor y transmite los datos al servidor. |
+| [`esp32/monitor_sumidero/secrets.h.example`](https://github.com/JoaquinZavalaM/Monitor-Sumidero/blob/main/esp32/monitor_sumidero/secrets.h.example) | Plantilla de las credenciales del firmware (`WIFI_SSID`, `WIFI_PASS`, `API_KEY`). Se copia como `secrets.h`, que está en `.gitignore` y no se publica. |
+| [`server.js`](https://github.com/JoaquinZavalaM/Monitor-Sumidero/blob/main/server.js) | Servidor Node.js + Express que recibe las mediciones, calcula el nivel de agua, las guarda en PostgreSQL y las entrega al dashboard. |
+| [`package.json`](https://github.com/JoaquinZavalaM/Monitor-Sumidero/blob/main/package.json) / [`package-lock.json`](https://github.com/JoaquinZavalaM/Monitor-Sumidero/blob/main/package-lock.json) | Dependencias del servidor. Proyecto `monitor-sumidero` v1.0.0, Node.js ≥ 18. Comando de inicio: `npm start` (`node server.js`). |
+| [`public/index.html`](https://github.com/JoaquinZavalaM/Monitor-Sumidero/blob/main/public/index.html) | Página web (dashboard) con el gráfico y la tabla de mediciones. La sirve el mismo servidor Express. |
+| [`.env.example`](https://github.com/JoaquinZavalaM/Monitor-Sumidero/blob/main/.env.example) | Plantilla de las variables privadas del servidor (`DATABASE_URL`, `DB_CA_CERT`, `API_KEY`, `ALTURA_SENSOR_CM`) con valores de ejemplo. El `.env` real está en `.gitignore` y no se publica. |
 | `README.md` | Documentación técnica, funcionamiento e instrucciones de instalación del software. |
 
 ---
@@ -126,7 +129,7 @@ La ESP32 no se conecta directamente a la base de datos. Su función es obtener l
 
 El servidor recibe la información y se comunica con la base de datos para almacenar y consultar los registros.
 
-**Tecnología del servidor:** Node.js (≥ 18) con Express 4, en el archivo `server.js`. El mismo servidor entrega la API y la página web (carpeta `public/`).
+**Tecnología del servidor:** Node.js (≥ 18) con Express 4, en el archivo [`server.js`](https://github.com/JoaquinZavalaM/Monitor-Sumidero/blob/main/server.js). El mismo servidor entrega la API y la página web (carpeta `public/`).
 
 ### 3.2 Comunicación con Railway
 
@@ -263,6 +266,8 @@ El dashboard constituye la interfaz web del sistema de monitoreo y permite prese
 
 https://monitor-sumidero-production.up.railway.app/
 
+**Código de la página:** [`public/index.html`](https://github.com/JoaquinZavalaM/Monitor-Sumidero/blob/main/public/index.html)
+
 ### 4.1 Información presentada
 
 La página web contempla los siguientes elementos:
@@ -329,7 +334,7 @@ Estas alertas buscan informar oportunamente sobre posibles situaciones de riesgo
 | Railway | Alojamiento del servidor en Internet. | Servicio en la nube | — |
 | Aiven | Alojamiento de PostgreSQL. | Servicio en la nube | — |
 
-**Versiones efectivamente utilizadas por el servidor:** Express 4.22.3, pg 8.23.1 y dotenv 16.6.1, según `package-lock.json`. En `package.json` aparecen como `^4.21.0`, `^8.13.0` y `^16.4.5`.
+**Versiones efectivamente utilizadas por el servidor:** Express 4.22.3, pg 8.23.1 y dotenv 16.6.1, según [`package-lock.json`](https://github.com/JoaquinZavalaM/Monitor-Sumidero/blob/main/package-lock.json). En [`package.json`](https://github.com/JoaquinZavalaM/Monitor-Sumidero/blob/main/package.json) aparecen como `^4.21.0`, `^8.13.0` y `^16.4.5`.
 
 ### 5.3 Herramientas utilizadas
 
@@ -366,8 +371,8 @@ Para instalar y ejecutar el firmware se requieren:
 1. Abrir Arduino IDE.
 2. Instalar el paquete de placas ESP32 desde el Gestor de placas.
 3. Instalar ArduinoJson versión 7 desde el Gestor de Bibliotecas.
-4. Abrir el archivo `monitor_sumidero.ino`.
-5. Configurar de forma privada `WIFI_SSID`, `WIFI_PASS` y `API_KEY` (la misma clave configurada en Railway). Usar como `SERVER_URL` la URL completa de la ruta: `https://monitor-sumidero-production.up.railway.app/api/mediciones`.
+4. Abrir el archivo [`monitor_sumidero.ino`](https://github.com/JoaquinZavalaM/Monitor-Sumidero/blob/main/esp32/monitor_sumidero/monitor_sumidero.ino).
+5. En la misma carpeta, copiar [`secrets.h.example`](https://github.com/JoaquinZavalaM/Monitor-Sumidero/blob/main/esp32/monitor_sumidero/secrets.h.example) como `secrets.h` y completar `WIFI_SSID`, `WIFI_PASS` y `API_KEY` (la misma clave configurada en Railway). `SERVER_URL` ya apunta a `https://monitor-sumidero-production.up.railway.app/api/mediciones`.
 6. Seleccionar la placa `ESP32S3 Dev Module`.
 7. Seleccionar el puerto USB correspondiente.
 8. Compilar y cargar el programa.
@@ -378,7 +383,7 @@ Las conexiones físicas del sensor se encuentran documentadas en [Hardware](../h
 
 ### 6.3 Conexión WiFi
 
-La ESP32 se conecta automáticamente a una red WiFi de 2.4 GHz mediante las credenciales configuradas en el firmware.
+La ESP32 se conecta automáticamente a una red WiFi de 2.4 GHz mediante las credenciales configuradas en `secrets.h`.
 
 Una vez conectada, obtiene una dirección IP local que permite identificarla dentro de la red.
 
@@ -403,7 +408,7 @@ El procedimiento de referencia contempla:
 7. Comprobar que los datos queden almacenados.
 8. Acceder al dashboard para consultar los registros.
 
-**Variables de entorno utilizadas por el servidor final:**
+**Variables de entorno utilizadas por el servidor final** (plantilla en [`.env.example`](https://github.com/JoaquinZavalaM/Monitor-Sumidero/blob/main/.env.example)):
 
 | Variable | Obligatoria | Descripción |
 | :--- | :--- | :--- |
@@ -418,6 +423,8 @@ El procedimiento de referencia contempla:
 En local:
 
 ```bash
+git clone https://github.com/JoaquinZavalaM/Monitor-Sumidero.git
+cd Monitor-Sumidero
 npm install
 cp .env.example .env    # completar con los datos reales
 npm start               # equivale a: node server.js
@@ -461,9 +468,10 @@ Las contraseñas y claves privadas deben mantenerse fuera del repositorio públi
 
 El sistema utiliza credenciales privadas para conectarse a la red WiFi y autorizar la comunicación con el servidor.
 
-Estas credenciales no deben publicarse en GitHub. Las del servidor van en `.env` (excluido por `.gitignore`) o en las variables de Railway.
+Estas credenciales no deben publicarse en GitHub:
 
-El firmware publicado debe utilizar valores de ejemplo, mientras que las claves reales deben mantenerse en una configuración privada.
+- **Firmware:** las credenciales van en `secrets.h`, que está en `.gitignore`. En el repositorio solo se publica la plantilla `secrets.h.example`, con valores de ejemplo.
+- **Servidor:** las credenciales van en `.env`, también en `.gitignore`, o en las variables de Railway. En el repositorio solo se publica `.env.example`.
 
 En caso de publicar accidentalmente una contraseña o clave de API, esta debe cambiarse o revocarse.
 
@@ -507,5 +515,7 @@ El desarrollo del sistema de comunicación se realizó tomando como referencia l
 **Méndez, Fernando.** *ESP32 conectado a una base de datos en la nube: Aiven (PostgreSQL) + Railway (servidor y página web) + GitHub*. Material de TEI201, 2026.
 
 El servidor fue adaptado al sistema de monitoreo de sumideros según lo informado por el equipo.
+
+El código fuente completo se encuentra en el repositorio [JoaquinZavalaM/Monitor-Sumidero](https://github.com/JoaquinZavalaM/Monitor-Sumidero).
 
 Las herramientas externas, librerías y usos de inteligencia artificial se documentan en [FUENTES.md](../FUENTES.md).
