@@ -6,12 +6,13 @@ Sistema embebido (ESP32-S3) que mide con un sensor ultrasónico la distancia al 
 
 > **Todo lo marcado como `COMPLETAR` es información que no estaba en el repositorio ni en el chat de tutoría. Busca `COMPLETAR` en todo el repositorio antes de entregar.**
 
-## Integrantes
+## Integrantes del equipo
 
-| Nombre completo | Rol en el proyecto |
-| :--- | :--- |
-| COMPLETAR | COMPLETAR |
-| COMPLETAR | COMPLETAR |
+- Olivia Betinyani
+- Joaquín Calderón
+- Joaquín Zavala
+- Antonia Uribe
+
 
 ## Enlaces rápidos
 
@@ -23,9 +24,9 @@ Sistema embebido (ESP32-S3) que mide con un sensor ultrasónico la distancia al 
 
 ## 1. ODS y problema a resolver
 
-**ODS:** COMPLETAR (número, nombre y por qué el proyecto contribuye a él).
+**ODS:** ODS 11 - Ciudades y comunidades sostenibles: Nuestro proyecto contribuye a este objetivo mediante el desarrollo de un sistema de monitoreo del nivel de agua en sumideros urbanos, que permite detectar aumentos anormales y generar alertas tempranas. De esta manera, buscamos contribuir a la seguridad de las comunidades, en concordancia con la meta 11.5, orientada a reducir el impacto de los desastres, incluidos los relacionados con el agua.
 
-**Problema:** COMPLETAR (qué ocurre cuando un sumidero se obstruye, a quién afecta, datos o cifras con su fuente).
+**Problema:** La acumulación excesiva de agua en los sumideros urbanos puede generar desbordamientos y anegamientos en calles y veredas, especialmente durante períodos de lluvias intensas. Estas situaciones pueden afectar la circulación de peatones y vehículos, además de representar un riesgo para la comunidad. Frente a esta problemática, nuestro proyecto busca monitorear el nivel de agua en los sumideros y generar alertas cuando se detecten niveles anormalmente elevados, permitiendo identificar oportunamente posibles situaciones de riesgo.
 
 **Contexto de instalación:** el equipo va montado bajo una rejilla de sumidero tipo SERVIU S2, con el sensor mirando hacia abajo, hacia el agua. La caja es hermética e impresa en 3D (ver [Diseño 3D](diseno-3d/README.md)).
 
@@ -34,49 +35,69 @@ Sistema embebido (ESP32-S3) que mide con un sensor ultrasónico la distancia al 
 ## 2. Cómo funciona el sistema
 
 1. La ESP32 dispara el sensor ultrasónico cada 500 ms y calcula la distancia entre el sensor y la superficie del agua.
-2. Si la distancia es **≤ 8.0 cm**, el sistema pasa a **VERIFICANDO**. Si el nivel se mantiene así **5 s seguidos**, declara **ALERTA** y enciende el LED (pin 6). Si el agua baja antes, vuelve a **NORMAL**.
+2. Si la distancia es **≤ 8.0 cm**, el sistema pasa a **VERIFICANDO**. Si el nivel se mantiene así **5 segundos**, declara **ALERTA**. Si el agua baja antes, vuelve a **NORMAL**.
 3. La propia ESP32 actúa como servidor web: entrega la página del monitor y el estado actual en `/estado` (JSON).
-4. La página replica la alerta del LED con banner, sonido y notificación del navegador. Puede recibir los datos **por USB** (Web Serial) o **por WiFi**.
+4. La página muestra la alerta con banner, sonido y notificación del navegador. Puede recibir los datos **por USB** (Web Serial) o **por WiFi**.
 5. Si el sensor no recibe eco, el sistema no lo interpreta como "nivel normal": informa el error por el Monitor Serial.
 
-El monitoreo, el LED y el Monitor Serial funcionan aunque no haya WiFi.
+El monitoreo y el Monitor Serial funcionan aunque no haya WiFi.
 
 ### Lógica de estados
 
-```
-[ Lectura Sensor ]
-        │
-        ├── (Distancia > 8.0 cm) ───> [ Estado NORMAL ] ──> LED OFF
-        │
-        └── (Distancia <= 8.0 cm) ──> [ Estado VERIFICANDO ]
-                                              │
-                                   ¿Se mantiene >= 5 s?
-                                         ├── SÍ ──> [ Estado ALERTA ] ──> LED ON
-                                         └── NO ──> Continúa verificando
+```text
+[ Lectura del sensor ultrasónico impermeable ]
+                    |
+                    v
+            [ Procesamiento ESP32 ]
+                    |
+                    ├── (Distancia > 8.0 cm) ──→ [ Estado NORMAL ]
+                    |
+                    └── (Distancia <= 8.0 cm) ─→ [ Estado VERIFICANDO ]
+                                                    |
+                                            ¿Se mantiene >= 5 s?
+                                                    |
+                                      ├── SÍ → [ Estado ALERTA ]
+                                      |
+                                      └── NO → Continúa verificando
+                                                (Si el nivel vuelve
+                                                a normal, se reinicia)
+                    |
+                    v
+         [ Servidor web de la ESP32 ]
+                    |
+                    v
+         [ Transmisión de datos por WiFi ]
+                    |
+                    v
+              [ Dashboard ]
+                    |
+                    ├── Muestra distancia medida
+                    ├── Muestra estado del sistema
+                    └── Genera alerta visual,
+                        sonora y notificación
 ```
 
-### Parámetros de operación
+## Parámetros de operación
 
 | Parámetro | Valor |
 | :--- | :--- |
 | Umbral de alerta | distancia ≤ 8.0 cm |
 | Confirmación | 5000 ms continuos en nivel crítico |
 | Frecuencia de muestreo | una lectura cada 500 ms (`millis()`) |
-| Puerto serie | 9600 baudios |
+| Puerto serie | 9600 baudios **Verificar en codigo final** |
 
 ---
 
 ## 3. Componentes
 
-| Componente | Detalle | Estado |
-| :--- | :--- | :--- |
-| Microcontrolador | ESP32-S3 Super Mini | Confirmado (chip ESP32-S3 en el log de carga) |
-| Sensor | AJ-SR04M (ultrasónico, sonda con cable) | Confirmado |
-| Divisor de voltaje en ECHO | El sensor va a 5 V y la ESP32 trabaja a 3.3 V | Valores de las resistencias: COMPLETAR |
-| LED + resistencia de 220 Ω | Indicador de alerta, pin 6 | Confirmado |
-| Alimentación | Powerbank por USB (100 × 70 × 25 mm) | Modelo: COMPLETAR |
-| PCB perforada | Soporta la ESP32 y el divisor (60 × 40 mm, 38 mm de alto) | Confirmado |
-| Encapsulado | Caja impresa en 3D (PLA), diseñada en Fusion 360, tapa con tornillos M3 e insertos de bronce | Ver [Diseño 3D](diseno-3d/README.md) |
+| Componente | Detalle |
+| :--- | :--- |
+| Microcontrolador | ESP32-S3 Super Mini |
+| Sensor | AJ-SR04M (ultrasónico impermeable, sonda con cable) |
+| Divisor de voltaje en ECHO | El sensor funciona a 5 V y la ESP32 a 3.3 V. Valores de las resistencias: **COMPLETAR** |
+| Alimentación | Powerbank por USB (100 × 70 × 25 mm). Modelo exacto: **COMPLETAR** |
+| PCB perforada | Soporta la ESP32 y el divisor de voltaje (60 × 40 mm, 38 mm de alto) |
+| Encapsulado | Caja impresa en 3D (PLA), diseñada en Fusion 360, con tapa fijada mediante tornillos M3 e insertos de bronce. Ver [Diseño 3D](diseno-3d/README.md) |
 
 Lista de materiales con costos: [hardware/README.md](hardware/README.md#lista-de-materiales-bom).
 
@@ -88,9 +109,9 @@ Lista de materiales con costos: [hardware/README.md](hardware/README.md#lista-de
 | :--- | :--- | :--- |
 | **TRIG** | GPIO 5 | 1.er pin lado derecho (visto desde el conector USB) |
 | **ECHO** | GPIO 4 | 4.º pin lado izquierdo (visto desde el conector USB), a través del divisor de voltaje |
-| **LED** | GPIO 6 | 2.º pin lado derecho, en serie con resistencia de 220 Ω |
-| **VCC sensor** | 5 V | |
-| **GND** | GND | Común entre ESP32, sensor y LED |
+| **VCC sensor** | 5 V | Alimentación del sensor ultrasónico impermeable |
+| **GND** | GND | Tierra común entre la ESP32, el sensor y el divisor de voltaje |
+| **Comunicación** | WiFi de la ESP32 | Transmisión inalámbrica de las mediciones al sistema web |
 
 Esquema: [hardware/esquematico.svg](hardware/esquematico.svg).
 
@@ -99,14 +120,17 @@ Esquema: [hardware/esquematico.svg](hardware/esquematico.svg).
 ## 5. Puesta en marcha
 
 ### 5.1 Conectar el prototipo
-1. Conecta el sensor y el LED según la tabla anterior (ECHO siempre pasa por el divisor de voltaje).
-2. Alimenta la placa con la powerbank o con el cable USB del computador.
+
+1. Conecta el sensor ultrasónico impermeable AJ-SR04M a la ESP32-S3 Super Mini según la tabla de conexiones: VCC al pin de 5 V, GND a tierra, TRIG al GPIO 5 y ECHO al GPIO 4.
+2. Verifica que todas las conexiones estén correctamente instaladas.
+3. Alimenta la ESP32 mediante la powerbank o el cable USB del computador.
 
 ### 5.2 Cargar el código en la ESP32
-1. Instala el **Arduino IDE** y, en el Gestor de placas, el paquete **esp32 (Espressif)**. La versión usada según el log de carga fue **4.0.0** (COMPLETAR: confirmar en *Herramientas → Placa → Gestor de placas*).
-2. No hay que instalar librerías adicionales: `WiFi`, `WebServer`, `DNSServer` y `Preferences` vienen con el paquete esp32.
-3. Abre `sumidero_wifi/sumidero_wifi.ino` (el archivo `pagina.h` debe estar en la misma carpeta).
-4. Configura *Herramientas* así:
+
+1. Instala el **Arduino IDE** y, en el Gestor de placas, el paquete **esp32 (Espressif)**. La versión registrada en el log de carga fue **4.0.0** (confirmar en *Herramientas → Placa → Gestor de placas*).
+2. No es necesario instalar librerías adicionales: `WiFi`, `WebServer`, `DNSServer` y `Preferences` vienen incluidas en el paquete esp32.
+3. Abre `sumidero_wifi/sumidero_wifi.ino` (el archivo `pagina.h` debe encontrarse en la misma carpeta).
+4. Configura *Herramientas* de la siguiente manera:
 
 | Opción | Valor |
 | :--- | :--- |
@@ -120,26 +144,49 @@ Esquema: [hardware/esquematico.svg](hardware/esquematico.svg).
 | PSRAM | Disabled |
 | Upload Speed | 921600 |
 
-5. Elige el puerto de la placa y pulsa **Subir**. Abre el Monitor Serial a **9600** baudios para ver el estado.
+5. Selecciona el puerto correspondiente a la ESP32 y pulsa **Subir**.
+6. Abre el Monitor Serial a **9600 baudios** para verificar las mediciones del sensor y el estado de la conexión.
 
 ### 5.3 Abrir la página y consultar los datos
 
 **Por USB**
-1. Abre https://joaco-eng.github.io/Proyecto-tei/ en **Chrome o Edge de escritorio** (Web Serial no funciona en otros navegadores).
-2. Cierra antes el Monitor Serial del IDE (si no, el puerto queda ocupado).
-3. Pulsa **Conectar placa** y elige el puerto.
 
-**Por WiFi (sin claves en el código)**
-1. Primer uso: la placa crea la red **`Sumidero-Setup`** (sin clave). Conéctate desde el celular o el computador; se abre sola la página de configuración (si no, entra a `http://192.168.4.1`).
-2. Elige tu red de 2.4 GHz, escribe la clave y pulsa **Guardar y conectar**. La red queda guardada en la memoria de la placa.
-3. En el Monitor Serial (9600) aparece `WiFi conectado. Abre http://<IP>`. Abre esa dirección desde un equipo en la misma red; la placa sirve la página y se conecta sola.
-4. Para cambiar de red entra a `http://<IP>/olvidar`: la placa borra la red guardada y vuelve a abrir `Sumidero-Setup`. También lo hace sola si no logra conectarse a la red guardada.
+1. Abre https://joaco-eng.github.io/Proyecto-tei/ en **Chrome o Edge de escritorio** (utilizando Web Serial).
+2. Cierra previamente el Monitor Serial de Arduino IDE para evitar que el puerto quede ocupado.
+3. Pulsa **Conectar placa** y selecciona el puerto correspondiente a la ESP32.
+4. Una vez establecida la conexión, la página mostrará las mediciones del sensor y el estado del sistema en tiempo real.
+
+**Por WiFi (sin claves en el código)**   **Hay q actualizarlo al servidor** 
+
+1. En el primer uso, la ESP32 crea una red llamada **`Sumidero-Setup`** (sin contraseña). Conéctate desde un celular o computador. Si la página de configuración no se abre automáticamente, ingresa a `http://192.168.4.1`.
+2. Selecciona una red WiFi de **2.4 GHz**, ingresa su contraseña y pulsa **Guardar y conectar**. La configuración queda almacenada en la memoria de la ESP32.
+3. En el Monitor Serial (9600 baudios) aparecerá el mensaje `WiFi conectado. Abre http://<IP>`, indicando la dirección IP asignada a la placa.
+4. Ingresa a esa dirección IP desde un dispositivo conectado a la misma red WiFi. La ESP32 funciona como servidor web local y permite consultar las mediciones y el estado del sistema.
+5. La página actualiza periódicamente los datos del sensor y muestra las alertas cuando se detecta un nivel de agua anormalmente elevado.
+6. Para cambiar de red WiFi, ingresa a `http://<IP>/olvidar`. La ESP32 eliminará la configuración guardada y volverá a crear la red `Sumidero-Setup`. Esto también ocurre si no consigue conectarse a la red almacenada.
 
 ### 5.4 Interfaz de red
 
-* `GET /` → página web.
-* `GET /estado` → `{"distancia":7.5,"estado":"ALERTA"}` (estados: `NORMAL`, `VERIFICANDO`, `ALERTA`).
-* `GET /olvidar` → borra la red WiFi guardada y reinicia.
+La ESP32 funciona como servidor web local, permitiendo consultar las mediciones del sensor y el estado del sistema mediante las siguientes rutas:
+
+- `GET /` → Entrega la página web de monitoreo.
+- `GET /estado` → Devuelve las mediciones y el estado actual del sistema en formato JSON.
+- `GET /olvidar` → Elimina la configuración WiFi almacenada y reinicia la placa.
+
+**Ejemplo de respuesta de `/estado`:**
+
+```json
+{
+  "distancia": 7.5,
+  "estado": "ALERTA"
+}
+```
+
+**Estados posibles:**
+
+- **NORMAL:** El nivel de agua se encuentra dentro del rango establecido.
+- **VERIFICANDO:** Se detecta un nivel elevado y el sistema comprueba si la condición persiste.
+- **ALERTA:** Se confirma un nivel de agua anormalmente elevado y se comunica la alerta a la página web.
 
 ---
 
