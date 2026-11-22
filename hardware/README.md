@@ -53,14 +53,14 @@ La siguiente tabla presenta los componentes utilizados para construir el prototi
 
 | Cant. | Descripción | Precio unitario | Costo total | Dónde se compró |
 | :--- | :--- | :--- | :--- | :--- |
-| 1 | ESP32-S3 Super Mini | COMPLETAR | COMPLETAR | COMPLETAR |
-| 1 | Sensor ultrasónico impermeable AJ-SR04M | COMPLETAR | COMPLETAR | COMPLETAR |
-| 1 | Powerbank por USB | COMPLETAR | COMPLETAR | COMPLETAR |
-| 1 | PCB perforada (60 × 40 mm) | COMPLETAR | COMPLETAR | COMPLETAR |
-| COMPLETAR | Tornillos M3 e insertos de bronce | COMPLETAR | COMPLETAR | COMPLETAR |
-| COMPLETAR | Filamento PLA para el encapsulado | COMPLETAR | COMPLETAR | COMPLETAR |
-| COMPLETAR | Cables y conectores | COMPLETAR | COMPLETAR | COMPLETAR |
-| | **TOTAL** | | **COMPLETAR** | |
+| 1 | ESP32-S3 Super Mini | 0$ | 0$ | Laboratorio DEC |
+| 1 | Sensor ultrasónico impermeable AJ-SR04M | 9,990$ | 14,980$ | Mercado Libre |
+| 1 | Powerbank por USB | 9,990$ | 9,990$ | Mercado Libre |
+| 1 | PCB perforada (60 × 40 mm) | 0$ | 0$ | Laboratorio DEC |
+| 4 | Tornillos M5 e insertos de bronce | 2,200$ | 8,800$ | HomeCenter |
+| 1 | Filamento PLA para el encapsulado | 0$ | 0$ | Laboratorio DEC |
+| 4 | Cables y conectores | 0$ | 0$ | Laboratorio DEC |
+| | **TOTAL** | | **33,770$** | |
 
 
 Los costos deben corresponder a los materiales utilizados en la construcción del prototipo.
