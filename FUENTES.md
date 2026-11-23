@@ -129,7 +129,7 @@ El firmware modificado no se compiló con la IA (no había compilador de línea 
 | `versiones-anteriores/` (`sumidero_wifi.ino`, `index.html`, `pagina.h`, `generar_pagina.sh`) | No |  |
 | Documentación (README de cada carpeta y `FUENTES.md`) | Sí | Borradores con Claude en claude.ai revisados por el grupo y corregidos |
 | Diseño 3D (modelo, renders, planos) | Si parcialmente para generar precisamente los planos | Parcialmente para generar precisamente los planos |
-| Informes y presentación | COMPLETAR | COMPLETAR |
+| Informes y presentación | No | No |
 
 ### 3.5 Otras herramientas de IA
 
